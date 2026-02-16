@@ -1,0 +1,8 @@
+Client has provided a short project brief.
+We need a clear summary and a practical action list for execution.
+
+The AI Employee must:
+- Understand the request
+- Generate a structured summary
+- Produce an actionable checklist
+- Follow the SK-010 → SK-011 → SK-012 processing pipeline
