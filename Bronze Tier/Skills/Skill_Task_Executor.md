@@ -465,6 +465,82 @@ memory_references:
 
 ---
 
+### Step 6.6: Reflect — Self-Evaluation and Assessment
+
+**Action:** Structured self-evaluation that assesses execution quality against deterministic criteria and produces actionable insights for system optimization.
+
+**Reflection Steps:**
+
+```
+6.6.1  Evaluate plan quality using scoring rubric (1-5 stars)
+6.6.2  Assess execution efficiency using scoring rubric (1-5 stars)
+6.6.3  Evaluate memory usage effectiveness using scoring rubric (1-5 stars)
+6.6.4  Document significant issues encountered during execution
+6.6.5  Identify improvements for future similar tasks
+6.6.6  Determine if this task represents a pattern worth preserving
+6.6.7  Generate optimization notes for system improvement
+6.6.8  Append reflection entry to /Memory/reflections.md
+```
+
+**Quality Assessment Criteria:**
+
+**Plan Quality Evaluation:**
+- Was the execution plan comprehensive and well-structured?
+- Did all plan steps contribute meaningfully to the objective?
+- Were success criteria clear and measurable?
+- Did the plan account for potential risks and dependencies?
+
+**Execution Efficiency Evaluation:**
+- Were resources used optimally (time, computation, API calls)?
+- Did execution follow the planned path without significant detours?
+- Was there minimal rework or backtracking required?
+- Did the skill chain execute as intended without unexpected failures?
+
+**Memory Usage Effectiveness:**
+- Did the Memory Influence Note from Step 2.5 guide planning effectively?
+- Were relevant patterns from memory successfully applied?
+- Were past failures appropriately avoided?
+- Did memory recall enhance the execution quality?
+
+**Reflection Output:**
+- Create a structured reflection entry in `/Memory/reflections.md`
+- Use the established template with proper Reflection ID format
+- Assign scores based on deterministic criteria, not subjective opinion
+- Provide specific, actionable improvement suggestions
+- Determine Pattern Candidate status objectively (Yes if approach is highly reusable)
+
+**Rules for Reflection Operations:**
+- **Never modify** existing reflection entries - only append
+- **Use deterministic criteria** for scoring (not opinion-based)
+- **Focus on system optimization** rather than task-specific issues
+- **Maintain objectivity** in assessment and suggestions
+- **Update frontmatter** - add reflection ID to task file if appropriate
+
+**Example Reflection Append:**
+
+```yaml
+### Reflection ID: 2026-02-16_REF-123
+**Task ID**: example-task.md
+**Date/Time**: 2026-02-16T14:30:00Z
+**Plan Quality Score**: 4 ⭐
+**Execution Efficiency Score**: 5 ⭐
+**Memory Usage Effectiveness**: 3 ⭐
+**Issues Encountered**: Minor confusion with file naming convention caused brief delay
+**What Should Be Done Differently Next Time**: Implement more robust file validation early in process
+**Pattern Candidate**: Yes
+**Notes for Future Optimization**: File validation step could be standardized across all file operations
+```
+
+**Reflection Integration Checklist:**
+- [ ] Reflection entry created in /Memory/reflections.md
+- [ ] All scoring rubrics applied objectively
+- [ ] Specific improvement suggestions provided
+- [ ] Pattern candidacy assessed and documented
+- [ ] Task file optionally references reflection ID (if appropriate)
+- [ ] No previous reflection entries were modified
+
+---
+
 ### Step 7: Signal Orchestrator
 
 **Action:** Return structured result to the orchestrator's completion loop.
@@ -514,6 +590,8 @@ The orchestrator will:
 | **Log everything** | Every step execution, every decision, every error — all logged per Handbook §5. |
 | **Memory append-only** | All memory operations in Step 6.5 are append-only. Never modify existing memory entries - only add new ones. |
 | **Memory integrity** | All memory files follow established templates and maintain audit chains. |
+| **Reflection append-only** | All reflection operations in Step 6.6 are append-only. Never modify existing reflection entries - only add new ones. |
+| **Reflection objectivity** | All scoring in reflections must follow deterministic rubrics, not subjective opinion. |
 
 ---
 
@@ -555,6 +633,9 @@ To prevent infinite reprocessing:
 - [ ] Frontmatter contains `plan`, `executed_by`, `completion_cycle` fields
 - [ ] Memory integration completed per Step 6.5 checklist
 - [ ] Relevant memory files updated with new patterns, decisions, or contexts
+- [ ] Reflection completed per Step 6.6 checklist before Step 7 (Signal)
+- [ ] Reflection entry appended to /Memory/reflections.md
+- [ ] All scoring rubrics applied objectively in reflection
 
 ---
 

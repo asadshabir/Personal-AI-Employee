@@ -402,6 +402,216 @@ def create_memory_influence_note(task_analysis: dict) -> str:
     return "\n".join(note_parts)
 
 
+def generate_reflection_entry(file_path: Path, metadata: dict, content: str, task_analysis: dict, execution_result: dict = None) -> str:
+    """
+    Generate a reflection entry for a completed task based on its execution.
+
+    Args:
+        file_path: Path to the completed task file
+        metadata: Task metadata dictionary
+        content: Task content
+        task_analysis: Task analysis from Step 2
+        execution_result: Result from the execution (optional, for more detailed assessment)
+
+    Returns:
+        Formatted reflection entry as a string
+    """
+    import re
+    from datetime import datetime
+
+    # Create reflection ID based on current timestamp - use a simple placeholder approach for now
+    now = datetime.now()
+    timestamp = now.strftime("%Y-%m-%d")
+
+    # In a real system, we would scan the reflections.md file to find the next available number
+    # For now, we'll use a simple approach by trying to read the file and find the highest number
+    reflections_file = MEMORY_DIR / "reflections.md"
+    next_number = 1
+
+    if reflections_file.exists():
+        content_text = reflections_file.read_text(encoding='utf-8')
+        # Find all reflection IDs and extract the number
+        matches = re.findall(r'Reflection ID: \d{4}-\d{2}-\d{2}_REF-(\d+)', content_text)
+        if matches:
+            numbers = [int(m) for m in matches]
+            if numbers:
+                next_number = max(numbers) + 1
+
+    reflection_id = f"{timestamp}_REF-{next_number:03d}"
+
+    # Extract key information from the completed task
+    task_id = file_path.name
+    date_time = now.strftime("%Y-%m-%dT%H:%M:%S")
+
+    # Calculate scores based on deterministic criteria
+
+    # Plan Quality Score based on task characteristics
+    plan_quality_score = 4  # Default
+    plan_content = content.lower()
+
+    # Look for evidence of good planning in the content or metadata
+    if 'plan' in plan_content or 'step' in plan_content or 'objective' in plan_content:
+        plan_quality_score = 5
+    elif metadata.get('plan', ''):  # If there's a plan reference in metadata
+        plan_quality_score = 5
+    elif task_analysis.get('complexity', 'medium') == 'simple':
+        plan_quality_score = 4  # Simple tasks may not need detailed planning
+
+    # Execution Efficiency Score based on task characteristics
+    execution_efficiency_score = 4  # Default
+    if execution_result:
+        # If there were errors, reduce score
+        if execution_result.get('errors') and execution_result['errors'] != 'None':
+            execution_efficiency_score = 3
+        # If there were retries, reduce score slightly
+        elif 'remaining' in str(execution_result.get('remaining', '')) or 'retry' in str(execution_result.get('summary', '')).lower():
+            execution_efficiency_score = 4
+        else:
+            execution_efficiency_score = 5
+
+    # Memory Usage Effectiveness score based on task_analysis and whether memory was used
+    memory_usage_effectiveness = 4  # Default
+    memory_influence_applied = False
+
+    # If memory influence was applied (would be in metadata or content), adjust score
+    if 'Memory Influence' in content or 'memory' in content.lower():
+        memory_usage_effectiveness = 5
+        memory_influence_applied = True
+    elif not any([scan_memory_for_task_patterns(task_analysis),
+                  scan_memory_for_failures(task_analysis),
+                  scan_memory_for_decisions(task_analysis)]):
+        # No memory entries applied
+        memory_usage_effectiveness = 3
+
+    # Extract issues from task content or execution result
+    issues_encountered = "None identified during standard execution"
+    if execution_result and execution_result.get('errors') and execution_result['errors'] != 'None':
+        issues_encountered = str(execution_result.get('errors', 'Minor processing issues'))
+    elif execution_result and execution_result.get('remaining'):
+        issues_encountered = f"Partial completion - some work remained: {execution_result.get('remaining', '')[:100]}..."
+
+    improvement_suggestions = "Review memory influence note effectiveness for future similar tasks"
+
+    # Determine if this task should be considered a pattern candidate based on domain, complexity, etc.
+    pattern_domains_for_candidate = ['code', 'documentation', 'research', 'planning']
+    pattern_candidate = "Yes" if task_analysis.get('domain') in pattern_domains_for_candidate and plan_quality_score >= 4 else "No"
+
+    optimization_notes = f"Task domain: {task_analysis.get('domain', 'general')}, Complexity: {task_analysis.get('complexity', 'medium')}, Memory influence: {'Applied' if memory_influence_applied else 'Not applied'}"
+
+    # Create the reflection entry
+    reflection_template = f"""### Reflection ID: {reflection_id}
+**Task ID**: {task_id}
+**Date/Time**: {date_time}
+**Plan Quality Score**: {plan_quality_score} ⭐
+**Execution Efficiency Score**: {execution_efficiency_score} ⭐
+**Memory Usage Effectiveness**: {memory_usage_effectiveness} ⭐
+**Issues Encountered**: {issues_encountered}
+**What Should Be Done Differently Next Time**: {improvement_suggestions}
+**Pattern Candidate**: {pattern_candidate}
+**Notes for Future Optimization**: {optimization_notes}"""
+
+    return reflection_template
+
+
+def append_reflection_to_log(reflection_entry: str) -> None:
+    """
+    Append a reflection entry to the reflections.md file.
+
+    Args:
+        reflection_entry: The formatted reflection entry to append
+    """
+    reflections_file = MEMORY_DIR / "reflections.md"
+
+    # If file doesn't exist, create it with basic template
+    if not reflections_file.exists():
+        initial_content = """# 🧘 Reflections Log
+
+> **Purpose**: This file stores structured self-evaluation records after each completed task. It serves as an append-only log of execution quality assessments that enable continuous optimization and learning.
+
+## 📋 **Reflection Template**
+
+### Reflection ID: [YYYY-MM-DD_REF-###]
+**Task ID**: [task_file_name]
+**Date/Time**: [timestamp]
+**Plan Quality Score**: [1-5] ⭐
+**Execution Efficiency Score**: [1-5] ⭐
+**Memory Usage Effectiveness**: [1-5] ⭐
+**Issues Encountered**: [brief description of any problems during execution]
+**What Should Be Done Differently Next Time**: [specific improvements for future tasks]
+**Pattern Candidate**: [Yes/No] — Should this approach be saved as a reusable pattern?
+**Notes for Future Optimization**: [technical notes for system improvement]
+
+---
+
+## ⭐ **Scoring Rubric**
+
+### Plan Quality Score (1-5)
+- **5**: Plan was comprehensive, all steps were relevant, success criteria were precise and complete
+- **4**: Plan was mostly comprehensive with only minor omissions
+- **3**: Plan was adequate but had some unclear steps or criteria
+- **2**: Plan had significant gaps that required improvisation
+- **1**: Plan was incomplete or fundamentally flawed
+
+### Execution Efficiency Score (1-5)
+- **5**: All steps completed as planned, no resource waste, optimal path followed
+- **4**: Nearly all steps completed as planned with minor inefficiencies
+- **3**: Most steps completed with some rework needed
+- **2**: Significant rework or detours required during execution
+- **1**: Execution required major improvisation or failed steps
+
+### Memory Usage Effectiveness (1-5)
+- **5**: Memory recall was highly relevant, influenced planning positively, avoided known failures
+- **4**: Memory recall was mostly relevant and helpful
+- **3**: Memory recall was somewhat helpful but limited impact
+- **2**: Memory recall was minimally helpful or only partially applied
+- **1**: Memory recall was not effectively used or had no impact
+
+## 📚 **Reflection Registry**
+_Add new reflections below this line - NEVER modify existing entries_
+
+### Reflection ID: 2026-02-16_REF-001
+**Task ID**: N/A (System Initialization)
+**Date/Time**: 2026-02-16T00:00:00Z
+**Plan Quality Score**: 5 ⭐
+**Execution Efficiency Score**: 5 ⭐
+**Memory Usage Effectiveness**: 5 ⭐
+**Issues Encountered**: None
+**What Should Be Done Differently Next Time**: None
+**Pattern Candidate**: No
+**Notes for Future Optimization**: Initial reflection entry for system completeness
+
+---
+"""
+        reflections_file.write_text(initial_content, encoding='utf-8')
+
+    # Read the current content
+    current_content = reflections_file.read_text(encoding='utf-8')
+
+    # Find the insertion point (before the closing --- or at the end)
+    insertion_point = current_content.rfind('\n---\n', 0, current_content.rfind('Reflection Registry'))  # Find the last separator before registry
+    if insertion_point == -1:
+        insertion_point = current_content.find('Reflection Registry') + len('Reflection Registry')
+        # Find the next newline
+        newline_pos = current_content.find('\n', insertion_point)
+        if newline_pos != -1:
+            insertion_point = newline_pos + 1
+
+    # Insert the new reflection before the final ---
+    if insertion_point and insertion_point < len(current_content):
+        # Split the content
+        before_insertion = current_content[:insertion_point]
+        after_insertion = current_content[insertion_point:]
+
+        # Add the new reflection with proper spacing
+        new_content = f"{before_insertion}\n{reflection_entry}\n\n{after_insertion}"
+    else:
+        # If we couldn't find a good insertion point, just append
+        new_content = f"{current_content}\n{reflection_entry}\n\n---"
+
+    # Write the updated content back
+    reflections_file.write_text(new_content, encoding='utf-8')
+
+
 def write_audit_log(
     task_ref: str,
     action_taken: str,
@@ -1033,6 +1243,27 @@ def complete_task(file_path: Path, result: dict, total_cycles: int = 1) -> Path:
 """
     content = content.rstrip() + result_section
     file_path.write_text(content, encoding="utf-8")
+
+    # --- STEP 6.6: REFLECT — Add reflection entry to memory (Silver Tier SM-003) ---
+    # This is the reflection step that evaluates execution quality and adds to reflections.md
+    # Extract metadata for reflection generation
+    content_after_update, metadata = parse_frontmatter(content)
+
+    # Create a basic task analysis for reflection purposes
+    task_analysis = {}
+    task_analysis['title'] = metadata.get('title', file_path.stem)
+    task_analysis['priority'] = metadata.get('priority', 'P2')
+    task_analysis['classification'] = metadata.get('classification', 'task')
+    task_analysis['domain'] = metadata.get('domain', 'general')  # Would be determined during initial processing
+    task_analysis['complexity'] = metadata.get('complexity', 'medium')
+
+    # Generate reflection entry based on execution
+    try:
+        reflection_entry = generate_reflection_entry(file_path, metadata, content_after_update, task_analysis, result)
+        append_reflection_to_log(reflection_entry)
+        logger.info(f"  Reflection entry added for task: {file_path.name}")
+    except Exception as e:
+        logger.warning(f"  Could not generate reflection for {file_path.name}: {e}")
 
     # Move to /Done — never overwrite
     done_path = get_safe_path(DONE_DIR, file_path.name)
