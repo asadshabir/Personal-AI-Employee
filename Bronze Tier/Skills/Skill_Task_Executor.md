@@ -311,6 +311,71 @@ Writing `status: done` is a PROMISE that:
 
 ---
 
+### Step 6.5: Learn — Append to Execution Memory
+
+**Action:** Operational learning that enhances future task execution by recording insights, patterns, and lessons learned.
+
+**Memory Integration Steps:**
+
+```
+6.5.1  Scan /Memory/task_patterns.md for similar past tasks
+6.5.2  Append execution insights to relevant memory files
+6.5.3  Record decisions made during planning and execution
+6.5.4  Record failures or error recovery if they occurred
+6.5.5  Store reusable patterns discovered during execution
+6.5.6  Update context log with post-execution state
+```
+
+**Memory File Operations:**
+
+For each memory file, follow the append-only pattern:
+
+**task_patterns.md:**
+- If current task shows a new effective approach → create new pattern entry
+- If current task matches existing pattern → increment reusability score or add reference
+- Pattern categories: Code Generation, Data Processing, Documentation, Analysis, etc.
+
+**decisions.md:**
+- Any significant decision points made during execution → create decision entry
+- Include reasoning and outcomes for future reference
+- Decision categories: Technical Architecture, Task Prioritization, Skill Selection, etc.
+
+**failures.md:**
+- Only if failures occurred during execution → create failure entry
+- Document root cause, resolution, and prevention strategy
+- Include trigger conditions for pattern matching
+
+**context_log.md:**
+- Create context entry for task completion with final state
+- Record any environmental factors that affected execution
+- Update system state in chronological order
+
+**Rules for Memory Operations:**
+- **Never overwrite** existing entries - only append
+- **Preserve immutability** of previous records
+- **Maintain audit trail** - all memory additions are logged
+- **Use consistent naming** - follow established templates
+- **Update frontmatter** - add memory references to task file
+
+**Example Memory Append:**
+
+```yaml
+# In task frontmatter:
+memory_references:
+  - pattern_id: 2026-02-16_PAT-001
+  - decision_id: 2026-02-16_DEC-001
+  - context_id: 2026-02-16_CTX-001
+```
+
+**Memory Integration Checklist:**
+- [ ] task_patterns.md updated with any new patterns
+- [ ] decisions.md updated with key decisions made
+- [ ] failures.md updated if any failures occurred (otherwise skip)
+- [ ] context_log.md updated with completion context
+- [ ] Task file references updated memory entries (if appropriate)
+
+---
+
 ### Step 7: Signal Orchestrator
 
 **Action:** Return structured result to the orchestrator's completion loop.
@@ -358,6 +423,8 @@ The orchestrator will:
 | **Idempotent re-entry** | If re-invoked on a partially complete task, resume from where it left off. Never redo completed steps. |
 | **Plan linkage** | Every executed task must have a corresponding plan in `/Plans`, linked in frontmatter. |
 | **Log everything** | Every step execution, every decision, every error — all logged per Handbook §5. |
+| **Memory append-only** | All memory operations in Step 6.5 are append-only. Never modify existing memory entries - only add new ones. |
+| **Memory integrity** | All memory files follow established templates and maintain audit chains. |
 
 ---
 
@@ -397,6 +464,8 @@ To prevent infinite reprocessing:
 - [ ] No skipped steps without documented justification
 - [ ] If reprocessed: previous cycle outputs are preserved (not overwritten)
 - [ ] Frontmatter contains `plan`, `executed_by`, `completion_cycle` fields
+- [ ] Memory integration completed per Step 6.5 checklist
+- [ ] Relevant memory files updated with new patterns, decisions, or contexts
 
 ---
 
