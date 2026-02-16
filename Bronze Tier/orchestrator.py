@@ -129,6 +129,279 @@ def get_safe_path(directory: Path, filename: str) -> Path:
     raise RuntimeError(f"Filename collision overflow: {filename} in {directory}")
 
 
+def scan_memory_for_task_patterns(task_analysis: dict) -> list:
+    """
+    Scan /Memory/task_patterns.md for similar task types to the current request.
+
+    Args:
+        task_analysis: Dictionary containing analysis from Step 2 with keys like
+                      'domain', 'complexity', 'intent', etc.
+
+    Returns:
+        List of relevant pattern dictionaries with applicable insights.
+    """
+    patterns_file = MEMORY_DIR / "task_patterns.md"
+    if not patterns_file.exists():
+        return []
+
+    patterns_content = patterns_file.read_text(encoding='utf-8')
+
+    # Extract pattern blocks
+    import re
+    pattern_blocks = re.findall(r'### Pattern ID: ([^\n]+).*?\n(.*?)(?=\n---\s*$|\n### Pattern ID:|\Z)',
+                                patterns_content, re.DOTALL)
+
+    relevant_patterns = []
+    for pattern_id, pattern_content in pattern_blocks:
+        # Check if this pattern matches current task characteristics
+        is_relevant = False
+
+        # Match based on domain, complexity, or other characteristics
+        if task_analysis.get('domain', '').lower() in pattern_content.lower():
+            is_relevant = True
+        elif task_analysis.get('complexity', '').lower() in pattern_content.lower():
+            is_relevant = True
+        elif task_analysis.get('intent', '').lower() in pattern_content.lower():
+            is_relevant = True
+
+        if is_relevant:
+            # Extract key information from the pattern
+            pattern_info = {
+                'id': pattern_id.strip(),
+                'content': pattern_content.strip()
+            }
+            # Extract pattern description
+            desc_match = re.search(r'#### \*\*Pattern Description\*\*\n(.*?)(?=\n####|\n---|\Z)', pattern_content, re.DOTALL)
+            if desc_match:
+                pattern_info['description'] = desc_match.group(1).strip()
+
+            # Extract reusability score
+            score_match = re.search(r'Reusability Score: (.*)', pattern_content)
+            if score_match:
+                pattern_info['reusability'] = score_match.group(1).strip()
+
+            relevant_patterns.append(pattern_info)
+
+    return relevant_patterns
+
+
+def scan_memory_for_failures(task_analysis: dict) -> list:
+    """
+    Scan /Memory/failures.md for related past mistakes or error patterns.
+
+    Args:
+        task_analysis: Dictionary containing analysis from Step 2 with keys like
+                      'domain', 'complexity', 'intent', etc.
+
+    Returns:
+        List of relevant failure dictionaries with applicable prevention strategies.
+    """
+    failures_file = MEMORY_DIR / "failures.md"
+    if not failures_file.exists():
+        return []
+
+    failures_content = failures_file.read_text(encoding='utf-8')
+
+    # Extract failure blocks
+    import re
+    failure_blocks = re.findall(r'### Failure ID: ([^\n]+).*?\n(.*?)(?=\n---\s*$|\n### Failure ID:|\Z)',
+                                failures_content, re.DOTALL)
+
+    relevant_failures = []
+    for failure_id, failure_content in failure_blocks:
+        # Check if this failure matches current task context
+        is_relevant = False
+
+        # Match based on domain, failure category, or trigger conditions
+        if task_analysis.get('domain', '').lower() in failure_content.lower():
+            is_relevant = True
+        elif task_analysis.get('complexity', '').lower() in failure_content.lower():
+            is_relevant = True
+        elif 'category' in task_analysis and task_analysis['category'].lower() in failure_content.lower():
+            is_relevant = True
+
+        if is_relevant:
+            # Extract key information from the failure
+            failure_info = {
+                'id': failure_id.strip(),
+                'content': failure_content.strip()
+            }
+
+            # Extract failure description
+            desc_match = re.search(r'#### \*\*Failure Description\*\*\n(.*?)(?=\n####|\n---|\Z)', failure_content, re.DOTALL)
+            if desc_match:
+                failure_info['description'] = desc_match.group(1).strip()
+
+            # Extract prevention strategy
+            prev_match = re.search(r'#### \*\*Prevention Strategy\*\*\n(.*?)(?=\n####|\n---|\Z)', failure_content, re.DOTALL)
+            if prev_match:
+                failure_info['prevention'] = prev_match.group(1).strip()
+
+            # Extract severity level
+            severity_match = re.search(r'Severity Level: (.*)', failure_content)
+            if severity_match:
+                failure_info['severity'] = severity_match.group(1).strip()
+
+            relevant_failures.append(failure_info)
+
+    return relevant_failures
+
+
+def scan_memory_for_decisions(task_analysis: dict) -> list:
+    """
+    Scan /Memory/decisions.md for reusable reasoning patterns or decision frameworks.
+
+    Args:
+        task_analysis: Dictionary containing analysis from Step 2 with keys like
+                      'domain', 'complexity', 'intent', etc.
+
+    Returns:
+        List of relevant decision dictionaries with applicable reasoning frameworks.
+    """
+    decisions_file = MEMORY_DIR / "decisions.md"
+    if not decisions_file.exists():
+        return []
+
+    decisions_content = decisions_file.read_text(encoding='utf-8')
+
+    # Extract decision blocks
+    import re
+    decision_blocks = re.findall(r'### Decision ID: ([^\n]+).*?\n(.*?)(?=\n---\s*$|\n### Decision ID:|\Z)',
+                                 decisions_content, re.DOTALL)
+
+    relevant_decisions = []
+    for decision_id, decision_content in decision_blocks:
+        # Check if this decision matches current task context
+        is_relevant = False
+
+        # Match based on domain, decision category, or situational context
+        if task_analysis.get('domain', '').lower() in decision_content.lower():
+            is_relevant = True
+        elif task_analysis.get('complexity', '').lower() in decision_content.lower():
+            is_relevant = True
+        elif 'category' in task_analysis and task_analysis['category'].lower() in decision_content.lower():
+            is_relevant = True
+
+        if is_relevant:
+            # Extract key information from the decision
+            decision_info = {
+                'id': decision_id.strip(),
+                'content': decision_content.strip()
+            }
+
+            # Extract situation summary
+            situation_match = re.search(r'#### \*\*Situation\*\*\n(.*?)(?=\n####|\n---|\Z)', decision_content, re.DOTALL)
+            if situation_match:
+                decision_info['situation'] = situation_match.group(1).strip()
+
+            # Extract reasoning
+            reasoning_match = re.search(r'#### \*\*Reasoning\*\*\n(.*?)(?=\n####|\n---|\Z)', decision_content, re.DOTALL)
+            if reasoning_match:
+                decision_info['reasoning'] = reasoning_match.group(1).strip()
+
+            # Extract outcome
+            outcome_match = re.search(r'#### \*\*Actual Outcome\*\*\n(.*?)(?=\n####|\n---|\Z)', decision_content, re.DOTALL)
+            if outcome_match:
+                decision_info['outcome'] = outcome_match.group(1).strip()
+
+            # Extract confidence level
+            confidence_match = re.search(r'Confidence Level: (.*)', decision_content)
+            if confidence_match:
+                decision_info['confidence'] = confidence_match.group(1).strip()
+
+            relevant_decisions.append(decision_info)
+
+    return relevant_decisions
+
+
+def create_memory_influence_note(task_analysis: dict) -> str:
+    """
+    Create a Memory Influence Note by scanning all memory files.
+
+    Args:
+        task_analysis: Dictionary containing analysis from Step 2 with keys like
+                      'domain', 'complexity', 'intent', etc.
+
+    Returns:
+        Formatted Memory Influence Note as a string.
+    """
+    # Scan all memory files
+    patterns = scan_memory_for_task_patterns(task_analysis)
+    failures = scan_memory_for_failures(task_analysis)
+    decisions = scan_memory_for_decisions(task_analysis)
+
+    # Build the note
+    note_parts = ["MEMORY INFLUENCE NOTE", "="*23, ""]
+
+    if patterns:
+        note_parts.append("FROM task_patterns.md:")
+        for pattern in patterns:
+            pattern_id = pattern.get('id', 'Unknown')
+            description = pattern.get('description', 'No description')[:100] + "..." if len(pattern.get('description', '')) > 100 else pattern.get('description', 'No description')
+            reusability = f" (Reusability: {pattern.get('reusability', 'N/A')})" if pattern.get('reusability') else ""
+            note_parts.append(f"- [Pattern ID: {pattern_id}] {description}{reusability}")
+        note_parts.append("")
+
+    if failures:
+        note_parts.append("FROM failures.md:")
+        for failure in failures:
+            failure_id = failure.get('id', 'Unknown')
+            description = failure.get('description', 'No description')[:100] + "..." if len(failure.get('description', '')) > 100 else failure.get('description', 'No description')
+            note_parts.append(f"- [Failure ID: {failure_id}] {description}")
+
+            prevention = failure.get('prevention', '')
+            if prevention:
+                prevention_preview = prevention[:100] + "..." if len(prevention) > 100 else prevention
+                note_parts.append(f"- [Prevention] {prevention_preview}")
+        note_parts.append("")
+
+    if decisions:
+        note_parts.append("FROM decisions.md:")
+        for decision in decisions:
+            decision_id = decision.get('id', 'Unknown')
+            situation = decision.get('situation', 'No situation')[:100] + "..." if len(decision.get('situation', '')) > 100 else decision.get('situation', 'No situation')
+            note_parts.append(f"- [Decision ID: {decision_id}] {situation}")
+
+            outcome = decision.get('outcome', '')
+            if outcome:
+                outcome_preview = outcome[:100] + "..." if len(outcome) > 100 else outcome
+                note_parts.append(f"- [Outcome] {outcome_preview}")
+        note_parts.append("")
+
+    # Summary section
+    if patterns or failures or decisions:
+        note_parts.append("SUMMARY OF INFLUENCES:")
+
+        # Recommended strategies
+        if patterns:
+            note_parts.append("- Recommended strategies to reuse:")
+            for pattern in patterns:
+                desc = pattern.get('description', 'N/A')[:50] + "..." if len(pattern.get('description', '')) > 50 else pattern.get('description', 'N/A')
+                note_parts.append(f"  - {desc}")
+
+        # Mistakes to avoid
+        if failures:
+            note_parts.append("- Mistakes to avoid:")
+            for failure in failures:
+                desc = failure.get('description', 'N/A')[:50] + "..." if len(failure.get('description', '')) > 50 else failure.get('description', 'N/A')
+                note_parts.append(f"  - {desc}")
+
+        # Decision frameworks
+        if decisions:
+            note_parts.append("- Decision frameworks that apply:")
+            for decision in decisions:
+                reason = decision.get('reasoning', 'N/A')[:50] + "..." if len(decision.get('reasoning', '')) > 50 else decision.get('reasoning', 'N/A')
+                note_parts.append(f"  - {reason}")
+
+        # Overall guidance
+        note_parts.append("- Overall guidance: Leverage relevant patterns, avoid known failure paths, and apply proven decision frameworks.")
+    else:
+        note_parts.append("SUMMARY OF INFLUENCES:")
+        note_parts.append("- No prior memory relevant")
+
+    return "\n".join(note_parts)
+
+
 def write_audit_log(
     task_ref: str,
     action_taken: str,
@@ -375,36 +648,57 @@ def load_handbook_rules() -> str:
 # ---------------------------------------------------------------------------
 
 
-def build_claude_prompt(task_content: str, skill_context: str, handbook_summary: str) -> str:
+def build_claude_prompt(task_content: str, skill_context: str, handbook_summary: str, memory_influence_note: str = None) -> str:
     """
     Build the full prompt that will be sent to Claude for task execution.
 
     This constructs a structured prompt with:
     1. Constitutional rules (Handbook)
     2. Skill execution steps
-    3. The actual task to process
+    3. Memory influence (if applicable)
+    4. The actual task to process
     """
-    return f"""You are the AI Employee operating under strict constitutional rules.
+    prompt_parts = ["You are the AI Employee operating under strict constitutional rules."]
 
+    # Add constitutional authority
+    prompt_parts.append(f"""
 == CONSTITUTIONAL AUTHORITY ==
 You must obey these rules. Violations are system-level failures.
 {handbook_summary}
+""")
 
+    # Add memory influence if provided
+    if memory_influence_note:
+        prompt_parts.append(f"""
+== MEMORY INFLUENCE NOTE ==
+Apply relevant insights from past experiences to guide your planning:
+{memory_influence_note}
+""")
+
+    # Add active skill
+    prompt_parts.append(f"""
 == ACTIVE SKILL ==
 Follow these execution steps precisely:
 {skill_context}
+""")
 
+    # Add task to process
+    prompt_parts.append(f"""
 == TASK TO PROCESS ==
 {task_content}
+""")
 
+    # Add instructions
+    prompt_parts.append("""
 == INSTRUCTIONS ==
 1. Analyze the task against the skill's execution steps.
-2. Produce the required outputs as defined by the skill.
-3. CRITICAL COMPLETION RULE: A task is ONLY considered complete when you
+2. Incorporate relevant insights from the Memory Influence Note when appropriate.
+3. Produce the required outputs as defined by the skill.
+4. CRITICAL COMPLETION RULE: A task is ONLY considered complete when you
    explicitly set `status: done` in your response. If work remains unfinished,
    set `status: in_progress` and describe what still needs to happen.
    The orchestrator will keep invoking you until `status: done` is confirmed.
-4. Report your result in this exact format:
+5. Report your result in this exact format:
 
 RESULT_STATUS: <done | in_progress | failed>
 RESULT_SUMMARY: <1-2 sentence summary of what was done>
@@ -412,7 +706,9 @@ RESULT_OUTPUT: <the actual output or artifact produced>
 RESULT_DECISIONS: <any choices or branching logic you applied>
 RESULT_ERRORS: <None, or description of issues encountered>
 RESULT_REMAINING: <None if done, or description of remaining work>
-"""
+""")
+
+    return "".join(prompt_parts)
 
 
 def invoke_claude(prompt: str, task_name: str) -> dict:
@@ -643,11 +939,52 @@ def process_task(file_path: Path, metadata: dict, content: str) -> dict:
 
     logger.info(f"  Skill resolved: {skill['skill_id']} ({skill['name']})")
 
+    # --- STEP 3.5: RECALL — Generate memory influence note (Silver Tier SM-002) ---
+    # Analyze task to create a task analysis dict for memory recall
+    task_analysis = {}
+
+    # Extract basic analysis from content and metadata
+    task_analysis['title'] = metadata.get('title', file_path.stem)
+    task_analysis['priority'] = metadata.get('priority', 'P2')
+    task_analysis['classification'] = metadata.get('classification', 'task')
+    task_analysis['domain'] = 'general'  # Will be inferred from content
+
+    # Determine domain from content/keywords
+    content_lower = content.lower()
+    if any(keyword in content_lower for keyword in ['code', 'python', 'javascript', 'program', 'function', 'class', 'method', 'bug', 'fix', 'debug']):
+        task_analysis['domain'] = 'code'
+    elif any(keyword in content_lower for keyword in ['review', 'analyze', 'check', 'examine', 'audit', 'validate']):
+        task_analysis['domain'] = 'review'
+    elif any(keyword in content_lower for keyword in ['research', 'find', 'search', 'information', 'data', 'study']):
+        task_analysis['domain'] = 'research'
+    elif any(keyword in content_lower for keyword in ['document', 'write', 'create', 'draft', 'text', 'article', 'documentation']):
+        task_analysis['domain'] = 'documentation'
+    elif any(keyword in content_lower for keyword in ['plan', 'strategy', 'organize', 'schedule', 'arrange', 'design']):
+        task_analysis['domain'] = 'planning'
+
+    # Complexity assessment
+    word_count = len(content.split())
+    if word_count < 50:
+        task_analysis['complexity'] = 'simple'
+    elif word_count < 200:
+        task_analysis['complexity'] = 'medium'
+    else:
+        task_analysis['complexity'] = 'complex'
+
+    # Intent extraction
+    lines = content.split('\n')
+    task_analysis['intent'] = lines[0][:100] if lines else 'Unknown request'  # First line as intent
+
+    # Create memory influence note
+    memory_influence_note = create_memory_influence_note(task_analysis)
+    logger.info(f"  Memory influence generated with {len(memory_influence_note.split())} words")
+
     # --- STEP 4: EXECUTE — Build prompt and invoke Claude ---
     prompt = build_claude_prompt(
         task_content=content,
         skill_context=skill_context,
         handbook_summary=handbook_rules,
+        memory_influence_note=memory_influence_note,
     )
 
     result = invoke_claude(prompt, task_name)

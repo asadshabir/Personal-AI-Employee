@@ -120,9 +120,88 @@ Produce an internal analysis (not written to file) covering:
 
 ---
 
+### Step 2.5: Recall — Memory Integration
+
+**Action:** Access relevant past experiences from memory files to guide current planning decisions.
+
+This step reads from memory files to extract only the most relevant insights for the current task, creating a "Memory Influence Note" that will guide the subsequent planning process.
+
+**Memory Scan Operations:**
+
+```
+2.5.1  Scan /Memory/task_patterns.md for similar task types to the current request
+2.5.2  Scan /Memory/failures.md for related past mistakes or error patterns
+2.5.3  Scan /Memory/decisions.md for reusable reasoning patterns or decision frameworks
+2.5.4  Extract only relevant insights — do NOT summarize entire files
+2.5.5  Create Memory Influence Note with applicable entries only
+```
+
+**Memory Extraction Rules:**
+
+For each memory file, use deterministic selection criteria:
+
+**task_patterns.md:**
+- Match on task type, domain, or complexity similar to current analysis
+- Look for patterns with high reusability scores (⭐⭐⭐⭐⭐)
+- Extract only patterns that directly apply to current task type
+- Record Pattern ID and reusability score
+
+**failures.md:**
+- Match on similar failure categories or trigger conditions
+- Look for failures in same domain or with similar complexity
+- Extract prevention strategies and recommended alternatives
+- Record Failure ID and severity level
+
+**decisions.md:**
+- Match on similar decision categories or situational contexts
+- Look for decisions with successful outcomes
+- Extract reasoning frameworks and outcome assessments
+- Record Decision ID and confidence level
+
+**Memory Influence Note Format:**
+
+Create an internal note (not written to file) with this structure:
+
+```
+MEMORY INFLUENCE NOTE
+=====================
+
+FROM task_patterns.md:
+- [Pattern ID: PAT-###] <Brief summary of applicable pattern>
+- [Pattern ID: PAT-###] <Brief summary of applicable pattern>
+
+FROM failures.md:
+- [Failure ID: FAIL-###] <Brief summary of relevant failure to avoid>
+- [Prevention] <Specific prevention strategy>
+
+FROM decisions.md:
+- [Decision ID: DEC-###] <Brief summary of relevant decision framework>
+- [Outcome] <What worked well in similar situations>
+
+SUMMARY OF INFLUENCES:
+- Recommended strategies to reuse: <list>
+- Mistakes to avoid: <list>
+- Decision frameworks that apply: <list>
+- Overall guidance: <concise recommendation>
+```
+
+**Read-Only Constraints:**
+- **MEMORY ACCESS ONLY:** This step reads memory files only - no modifications allowed
+- **DETERMINISTIC SELECTION:** Use objective criteria to select applicable entries
+- **RELEVANCE FILTERING:** Only include entries that directly apply to current task
+- **NO SUMMARIZATION:** Do not create general summaries of entire files
+- **APPLICABILITY CHECK:** If no memory entries apply → explicitly state "No prior memory relevant"
+
+**Validation:**
+- If 0 relevant entries found → Memory Influence Note contains: "No prior memory relevant"
+- If >0 relevant entries found → Memory Influence Note guides next step (Plan)
+- Memory files remain completely unchanged
+
+---
+
 ### Step 3: Generate Plan
 
-**Action:** Create a structured execution plan in `/Plans`.
+**Action:** Create a structured execution plan in `/Plans`, incorporating insights from the Memory Influence Note.
 
 Plan file: `/Plans/PLAN_<task-stem>.md`
 
@@ -169,13 +248,23 @@ tags: [plan, execution]
 
 ## Rollback
 <What to undo if the plan fails midway>
+
+## Memory Influence
+<Reference key insights from the Memory Influence Note that shaped this plan>
+- Patterns reused: <list relevant patterns>
+- Failures avoided: <list relevant failures and how they were mitigated>
+- Decisions referenced: <list relevant decision frameworks>
+- Overall impact: <how memory influenced the plan structure>
 ```
 
 **Rules:**
+- If Memory Influence Note contains "No prior memory relevant" → proceed with standard planning
+- If Memory Influence Note contains specific influences → incorporate them into plan structure
 - If a plan already exists for this task (from a previous cycle) → update it, don't create a new one.
 - Mark completed steps with `[x]` and update `steps_completed` count.
 - If complexity is `simple` (1-3 steps), the plan can be minimal — no need for risks/rollback sections.
 - Never overwrite an existing plan file — use the existing one if `PLAN_<task-stem>.md` exists.
+- **Memory Integration:** The "Memory Influence" section must reference specific insights from the Memory Influence Note that affected plan decisions.
 
 ---
 
