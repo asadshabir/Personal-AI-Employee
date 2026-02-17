@@ -270,7 +270,7 @@ tags: [plan, execution]
 
 ### Step 4: Execute Plan
 
-**Action:** Work through each plan step in order.
+**Action:** Work through each plan step by expressing required actions as capability requests.
 
 For each step in the plan:
 
@@ -282,12 +282,54 @@ For each step in the plan:
        - Research        → chain to SK-006
        - Documentation   → chain to SK-007
        - Testing         → chain to SK-008
-       - General work    → execute directly (no chaining)
-4.3  Execute the step
-4.4  Validate the output against expected output
+       - General work    → express as CP-001 capability request
+4.3  Express required action as a capability request:
+       - CAPABILITY_REQUEST:
+         - capability: CP-001
+         - action: <read | create | append>
+         - target: <path>
+         - justification: <which plan step requires this>
+4.4  Validate the expected output will be produced
 4.5  Mark step as [x] in the plan file
 4.6  Update plan frontmatter: steps_completed += 1
 4.7  Log the step execution
+```
+
+**Capability Request Format:**
+
+When a plan step requires file system interaction, it must be expressed as:
+
+```
+CAPABILITY_REQUEST:
+- capability: CP-001
+- action: <read | create | append>
+- target: <file_path_or_directory>
+- justification: <specific plan step requirement>
+```
+
+**Examples of capability requests:**
+
+```
+# Reading a file
+CAPABILITY_REQUEST:
+- capability: CP-001
+- action: read
+- target: /Plans/PLAN_example.md
+- justification: Step 3 requires reading existing plan to continue execution
+
+# Creating a file
+CAPABILITY_REQUEST:
+- capability: CP-001
+- action: create
+- target: /Plans/PLAN_new-task.md
+- justification: Plan generation step requires creating new plan file
+
+# Appending to a file
+CAPABILITY_REQUEST:
+- capability: CP-001
+- action: append
+- target: /Logs/LOG_2026-02-16.md
+- justification: Execution requires logging results per Handbook §5
 ```
 
 **Skill Chaining Rules (per Skill_Base §4.3):**
@@ -296,10 +338,20 @@ For each step in the plan:
 - If any chained skill fails, halt the entire plan at that step
 - SK-012 is responsible for rollback of its own outputs
 
+**Capability Invocation Rules (per new contract):**
+- Direct file system manipulation is strictly forbidden
+- All workspace interaction must be expressed as CP-001 requests
+- Each request must map to an active plan step for traceability
+- The orchestrator validates and executes capability requests
+- Capability responses must be processed by SK-012
+
 **Per-Step Error Handling:**
 
 | Scenario | Response |
 |----------|----------|
+| Invalid capability request | E2 — log, return `failed` with details |
+| Requested file access denied | E2 — log, return `in_progress` with blocked status |
+| Capability request not mapped to plan step | E3 — halt entire plan, escalate |
 | Step produces no output | E1 — log warning, attempt step once more, then skip with note |
 | Step produces wrong output type | E2 — log, retry step once, escalate if still wrong |
 | Step requires Tier 2/3 action | HALT entire plan — return `in_progress` with remaining steps |
@@ -665,6 +717,59 @@ To prevent infinite reprocessing:
 | **Operations flow**: SK-012 → requests operation → CP-001 → validates and executes → returns result |
 | **Constitutional compliance** | All capability operations must follow Company Handbook rules |
 | **Traceability** | Every capability operation is logged per Handbook §5 requirements |
+
+---
+
+## Capability Invocation Contract
+
+This section establishes the mandatory interface between skills and workspace capabilities as part of the Gold Tier implementation.
+
+### **Core Requirements**
+
+| Requirement | Rule |
+|-------------|------|
+| **No Direct File Manipulation** | Skills are not allowed to directly manipulate the filesystem. |
+| **Mandatory Capability Requests** | All workspace interaction must be declared as a CP-001 request. |
+| **Plan Mapping Requirement** | Every request must map to a plan step for traceability. |
+| **Orchestrator Validation** | The orchestrator validates and executes the request. |
+
+### **Capability Request Format**
+
+All file operations must follow this exact format:
+
+```
+CAPABILITY_REQUEST:
+- capability: CP-001
+- action: <read \| create \| append>
+- target: <path>
+- justification: <which plan step requires this>
+```
+
+### **Enforcement Protocol**
+
+1. **Request Declaration**: Skills express required actions as capability requests
+2. **Validation Check**: Orchestrator validates request against constitutional rules
+3. **Authorization Verification**: Check if action is permitted under current Tier
+4. **Execution**: Capability system performs the validated operation
+5. **Result Return**: Capability response returned to requesting skill
+6. **Traceability**: All operations logged per Handbook §5 requirements
+
+### **Prohibited Operations**
+
+The following are strictly forbidden for skills:
+- Direct file reading/writing operations
+- Direct filesystem access (os, pathlib, etc.)
+- Direct file manipulation without capability request
+- Bypassing the capability interface
+- Performing unauthorized operations
+
+### **Compliance Verification**
+
+Skills will be checked for compliance with this contract:
+- Code review of plan execution steps
+- Runtime validation of all operations
+- Traceability verification
+- Constitutional rule adherence
 
 ---
 

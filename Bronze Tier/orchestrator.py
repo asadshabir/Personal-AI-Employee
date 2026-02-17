@@ -854,6 +854,235 @@ def load_handbook_rules() -> str:
     return "[CRITICAL] Company_Handbook.md not found — operating without constitutional authority."
 
 
+def parse_capability_requests(response_text: str) -> list:
+    """
+    Parse capability requests from Claude's response.
+
+    Looks for blocks in the format:
+    ```
+    CAPABILITY_REQUEST:
+    - capability: CP-001
+    - action: <read|create|append>
+    - target: <path>
+    - justification: <reason>
+    ```
+
+    Args:
+        response_text: The raw response from Claude
+
+    Returns:
+        List of capability request dictionaries
+    """
+    import re
+
+    # Find all capability request blocks
+    capability_pattern = r'CAPABILITY_REQUEST:\s*\n((?:\s*-\s*[^\n]+\n?)+)'
+    matches = re.findall(capability_pattern, response_text, re.MULTILINE)
+
+    requests = []
+    for match in matches:
+        # Parse the request details
+        request = {
+            'capability': None,
+            'action': None,
+            'target': None,
+            'justification': None
+        }
+
+        # Extract key-value pairs
+        for line in match.split('\n'):
+            line = line.strip()
+            if line.startswith('- capability:'):
+                request['capability'] = line.split(':', 1)[1].strip()
+            elif line.startswith('- action:'):
+                request['action'] = line.split(':', 1)[1].strip()
+            elif line.startswith('- target:'):
+                request['target'] = line.split(':', 1)[1].strip()
+            elif line.startswith('- justification:'):
+                request['justification'] = line.split(':', 1)[1].strip()
+
+        # Only add if all required fields are present
+        if request['capability'] and request['action'] and request['target'] and request['justification']:
+            requests.append(request)
+
+    return requests
+
+
+def execute_capability_request(request: dict, task_file_path: Path) -> dict:
+    """
+    Execute a validated capability request.
+
+    Args:
+        request: Capability request dictionary with capability, action, target, justification
+        task_file_path: Path of the task that initiated this request (for validation)
+
+    Returns:
+        Dictionary with result of the operation
+    """
+    capability_id = request['capability']
+    action = request['action']
+    target = request['target']
+    justification = request['justification']
+
+    # Validate capability ID
+    if capability_id != "CP-001":
+        return {
+            "status": "failed",
+            "error": f"Unknown capability: {capability_id}",
+            "result": None
+        }
+
+    # Validate action
+    allowed_actions = ["read", "create", "append"]
+    if action not in allowed_actions:
+        return {
+            "status": "failed",
+            "error": f"Invalid action: {action}. Allowed: {allowed_actions}",
+            "result": None
+        }
+
+    # Validate target path to ensure it's within allowed directories
+    target_path = Path(target)
+
+    # If target is a relative path, resolve relative to vault root
+    if not target_path.is_absolute():
+        target_path = VAULT_ROOT / target_path
+
+    # Validate that the target is within allowed workspace directories
+    allowed_dirs = [INBOX_DIR, NEEDS_ACTION_DIR, DONE_DIR, LOGS_DIR, PLANS_DIR, SKILLS_DIR, MEMORY_DIR, CAPABILITIES_DIR]
+
+    # Check if target path is within an allowed directory
+    is_allowed = False
+    for allowed_dir in allowed_dirs:
+        try:
+            target_path.resolve().relative_to(allowed_dir.resolve())
+            is_allowed = True
+            break
+        except ValueError:
+            continue
+
+    if not is_allowed:
+        return {
+            "status": "failed",
+            "error": f"Target path not in allowed directories: {target}",
+            "result": None
+        }
+
+    # Execute the action
+    try:
+        if action == "read":
+            if target_path.exists():
+                content = target_path.read_text(encoding="utf-8")
+                return {
+                    "status": "success",
+                    "result": content,
+                    "action_performed": f"Read file: {target_path}"
+                }
+            else:
+                return {
+                    "status": "failed",
+                    "error": f"File does not exist: {target_path}",
+                    "result": None
+                }
+
+        elif action == "create":
+            # Create parent directories if they don't exist
+            target_path.parent.mkdir(parents=True, exist_ok=True)
+
+            # Only create empty file or append a template - don't overwrite if exists
+            if not target_path.exists():
+                target_path.touch()
+                return {
+                    "status": "success",
+                    "result": f"Created file: {target_path}",
+                    "action_performed": f"Created file: {target_path}"
+                }
+            else:
+                return {
+                    "status": "failed",
+                    "error": f"File already exists and will not be overwritten: {target_path}",
+                    "result": None
+                }
+
+        elif action == "append":
+            # For append, we need to know what to append - in a real system this would come from the request
+            # For now, we'll just validate that the target exists for append operations
+            if not target_path.exists():
+                return {
+                    "status": "failed",
+                    "error": f"Cannot append to non-existent file: {target_path}",
+                    "result": None
+                }
+            else:
+                # In a real implementation, we would have content to append
+                # This is just validation that append action is allowed
+                return {
+                    "status": "success",
+                    "result": f"Append operation validated for: {target_path}",
+                    "action_performed": f"Append validated: {target_path}"
+                }
+
+    except Exception as e:
+        return {
+            "status": "failed",
+            "error": f"Error executing operation: {str(e)}",
+            "result": None
+        }
+
+
+def process_capability_requests_in_response(response_text: str, task_file_path: Path) -> str:
+    """
+    Process capability requests found in Claude's response and execute them,
+    then update the response with results.
+
+    Args:
+        response_text: Original response from Claude containing capability requests
+        task_file_path: Path of the task that initiated this response
+
+    Returns:
+        Updated response text with capability execution results
+    """
+    import re
+
+    # Find and execute capability requests
+    capability_requests = parse_capability_requests(response_text)
+
+    if not capability_requests:
+        # No capability requests found, return original response
+        return response_text
+
+    # Execute each capability request
+    execution_results = []
+    for request in capability_requests:
+        result = execute_capability_request(request, task_file_path)
+        execution_results.append({
+            "request": request,
+            "result": result
+        })
+
+    # Create a summary of capability executions to append to the response
+    capability_summary = "\n\n## Capability Execution Summary\n"
+    for i, execution in enumerate(execution_results):
+        req = execution["request"]
+        res = execution["result"]
+
+        capability_summary += f"\n### Request {i+1}\n"
+        capability_summary += f"- **Capability**: {req['capability']}\n"
+        capability_summary += f"- **Action**: {req['action']}\n"
+        capability_summary += f"- **Target**: {req['target']}\n"
+        capability_summary += f"- **Justification**: {req['justification']}\n"
+        capability_summary += f"- **Status**: {res['status']}\n"
+
+        if res['status'] == 'success':
+            capability_summary += f"- **Result**: {res.get('action_performed', res.get('result', 'Operation completed'))}\n"
+        else:
+            capability_summary += f"- **Error**: {res.get('error', 'Unknown error')}\n"
+
+    # Append the summary to the response
+    updated_response = response_text + capability_summary
+    return updated_response
+
+
 # ---------------------------------------------------------------------------
 # Claude invocation
 # ---------------------------------------------------------------------------
@@ -991,18 +1220,26 @@ def _simulate_local(prompt: str, task_name: str) -> dict:
     if "== TASK TO PROCESS ==" in prompt:
         task_section = prompt.split("== TASK TO PROCESS ==")[1].split("== INSTRUCTIONS ==")[0].strip()
 
+    # Generate a response that follows the new capability request format
+    simulated_output = (
+        f"## Processing Result — {task_name}\n\n"
+        f"- **Mode:** Local simulation (no API key)\n"
+        f"- **Task received:** Yes\n"
+        f"- **Skill context loaded:** Yes\n"
+        f"- **Handbook rules loaded:** Yes\n"
+        f"- **Action:** Task analyzed and marked as `status: done`\n\n"
+        f"CAPABILITY_REQUEST:\n"
+        f"- capability: CP-001\n"
+        f"- action: append\n"
+        f"- target: /Needs_Action/{task_name}\n"
+        f"- justification: Update task status to complete per execution plan\n\n"
+        f"> To enable full Claude processing, set the `ANTHROPIC_API_KEY` environment variable.\n"
+    )
+
     return {
         "status": "done",
         "summary": f"Task '{task_name}' processed in local simulation mode. Marked as done.",
-        "output": (
-            f"## Processing Result — {task_name}\n\n"
-            f"- **Mode:** Local simulation (no API key)\n"
-            f"- **Task received:** Yes\n"
-            f"- **Skill context loaded:** Yes\n"
-            f"- **Handbook rules loaded:** Yes\n"
-            f"- **Action:** Task analyzed and marked as `status: done`\n\n"
-            f"> To enable full Claude processing, set the `ANTHROPIC_API_KEY` environment variable.\n"
-        ),
+        "output": simulated_output,
         "decisions": "Local simulation mode — task structure validated, marked as done",
         "errors": "None",
         "remaining": "None",
@@ -1043,6 +1280,23 @@ def _parse_claude_response(response_text: str) -> dict:
         result["summary"] = response_text[:200]
 
     return result
+
+
+def execute_and_update_response(response_text: str, task_file_path: Path) -> str:
+    """
+    Process capability requests in Claude's response, execute them,
+    and return updated response with execution results.
+
+    Args:
+        response_text: Original response from Claude
+        task_file_path: Path of the task being processed (for validation)
+
+    Returns:
+        Updated response text with capability execution results
+    """
+    # Process capability requests in the response and execute them
+    updated_response = process_capability_requests_in_response(response_text, task_file_path)
+    return updated_response
 
 
 # ---------------------------------------------------------------------------
@@ -1199,6 +1453,13 @@ def process_task(file_path: Path, metadata: dict, content: str) -> dict:
     )
 
     result = invoke_claude(prompt, task_name)
+
+    # Process any capability requests that were included in Claude's response
+    # This handles Gold Tier Phase 2: Capability Invocation Enforcement
+    if 'output' in result and result['output']:
+        # Execute any capability requests found in the response
+        updated_response = execute_and_update_response(result['output'], file_path)
+        result['output'] = updated_response
 
     logger.info(f"  Result status: {result['status']}")
 
