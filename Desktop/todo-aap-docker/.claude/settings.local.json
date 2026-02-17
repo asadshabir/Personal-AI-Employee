@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python:*)",
+      "Bash(pip install:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nFix Hugging Face deployment configuration\n\n- Fix graceful handling of missing environment variables\n- Update Dockerfile for proper startup command\n- Switch to psycopg2-binary for database driver\n- Add secure cookie settings for HTTPS\n- Add /config-status endpoint for debugging\n- Add .gitignore to exclude sensitive files\n- Add test_connection.py for local testing\n- Add app.py as alternative entry point\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)"
+    ]
+  }
+}
