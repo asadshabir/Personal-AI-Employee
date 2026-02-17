@@ -656,4 +656,16 @@ To prevent infinite reprocessing:
 
 ---
 
+## Interaction with Capabilities
+
+| Capability | Relationship |
+|------------|-------------|
+| **CP-001 (Workspace Interaction)** | Primary interface — all file operations use this capability |
+| **SK-012 delegates file operations** | When plan steps require reading, creating, or updating files, SK-012 invokes CP-001 |
+| **Operations flow**: SK-012 → requests operation → CP-001 → validates and executes → returns result |
+| **Constitutional compliance** | All capability operations must follow Company Handbook rules |
+| **Traceability** | Every capability operation is logged per Handbook §5 requirements |
+
+---
+
 *This skill conforms to [Skill_Base.md](./Skill_Base.md) v1.0 — Primary reasoning loop of the AI Employee system.*

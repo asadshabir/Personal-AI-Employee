@@ -52,6 +52,7 @@ LOGS_DIR = VAULT_ROOT / "Logs"
 PLANS_DIR = VAULT_ROOT / "Plans"
 SKILLS_DIR = VAULT_ROOT / "Skills"
 MEMORY_DIR = VAULT_ROOT / "Memory"
+CAPABILITIES_DIR = VAULT_ROOT / "Capabilities"
 HANDBOOK_PATH = VAULT_ROOT / "Company_Handbook.md"
 
 POLL_INTERVAL_SECONDS = 5
@@ -105,7 +106,7 @@ logger = logging.getLogger("orchestrator")
 def ensure_directories() -> bool:
     """Verify all required workspace folders exist. Auto-remediate if missing (Tier 0)."""
     all_ok = True
-    for folder in [INBOX_DIR, NEEDS_ACTION_DIR, DONE_DIR, LOGS_DIR, PLANS_DIR, SKILLS_DIR, MEMORY_DIR]:
+    for folder in [INBOX_DIR, NEEDS_ACTION_DIR, DONE_DIR, LOGS_DIR, PLANS_DIR, SKILLS_DIR, MEMORY_DIR, CAPABILITIES_DIR]:
         if not folder.exists():
             logger.warning(f"Missing folder: {folder.name} — recreating")
             folder.mkdir(parents=True, exist_ok=True)
