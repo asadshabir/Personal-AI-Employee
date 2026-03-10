@@ -17,6 +17,7 @@ This capability allows the AI Employee to interact with files in a controlled, t
   - `/Inbox`, `/Needs_Action`, `/Done`
   - `/Logs`, `/Plans`, `/Memory`
   - `/Skills`, `/Dashboard`, `/Capabilities`
+
   - Any subdirectories of these approved locations
 - **Parse file content** for task processing
 - **Extract metadata** from file frontmatter where present
@@ -28,6 +29,8 @@ This capability allows the AI Employee to interact with files in a controlled, t
   - `/Logs` (for audit logs)
   - `/Done` (for completed tasks)
   - `/Memory` (for reflection entries)
+  - `/Needs_Action`
+  - `/Tasks`
   - Subdirectories as defined by system architecture
 - **Generate deliverables** as specified in task plans
 - **Create temporary working files** in designated areas only

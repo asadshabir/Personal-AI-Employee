@@ -713,8 +713,10 @@ To prevent infinite reprocessing:
 | Capability | Relationship |
 |------------|-------------|
 | **CP-001 (Workspace Interaction)** | Primary interface — all file operations use this capability |
+| **CP-002 (External Tool Execution)** | Secondary interface — all external tool executions use this capability |
 | **SK-012 delegates file operations** | When plan steps require reading, creating, or updating files, SK-012 invokes CP-001 |
-| **Operations flow**: SK-012 → requests operation → CP-001 → validates and executes → returns result |
+| **SK-012 delegates tool operations** | When plan steps require external tools, SK-012 invokes CP-002 |
+| **Operations flow**: SK-012 → requests operation → appropriate capability → validates and executes → returns result |
 | **Constitutional compliance** | All capability operations must follow Company Handbook rules |
 | **Traceability** | Every capability operation is logged per Handbook §5 requirements |
 

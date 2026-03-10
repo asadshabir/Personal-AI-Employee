@@ -39,6 +39,9 @@ import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
+from llm_provider import call_llm
+
+
 
 # ---------------------------------------------------------------------------
 # Configuration
@@ -866,6 +869,17 @@ def parse_capability_requests(response_text: str) -> list:
     - target: <path>
     - justification: <reason>
     ```
+    or for CP-002:
+    ```
+    CAPABILITY_REQUEST:
+    - capability: CP-002
+    - action: execute
+    - tool: <command_name>
+    - parameters: <command_parameters>
+    - timeout: <seconds>
+    - workspace_path: <relative_path_from_workspace_root>
+    - justification: <which_plan_step_requires_this_tool>
+    ```
 
     Args:
         response_text: The raw response from Claude
@@ -881,11 +895,15 @@ def parse_capability_requests(response_text: str) -> list:
 
     requests = []
     for match in matches:
-        # Parse the request details
+        # Parse the request details - initialize with all possible fields
         request = {
             'capability': None,
             'action': None,
-            'target': None,
+            'target': None,  # For CP-001
+            'tool': None,    # For CP-002
+            'parameters': None,  # For CP-002
+            'timeout': None,     # For CP-002
+            'workspace_path': None,  # For CP-002
             'justification': None
         }
 
@@ -898,11 +916,34 @@ def parse_capability_requests(response_text: str) -> list:
                 request['action'] = line.split(':', 1)[1].strip()
             elif line.startswith('- target:'):
                 request['target'] = line.split(':', 1)[1].strip()
+            elif line.startswith('- tool:'):
+                request['tool'] = line.split(':', 1)[1].strip()
+            elif line.startswith('- parameters:'):
+                request['parameters'] = line.split(':', 1)[1].strip()
+            elif line.startswith('- timeout:'):
+                timeout_val = line.split(':', 1)[1].strip()
+                try:
+                    request['timeout'] = int(timeout_val)
+                except ValueError:
+                    request['timeout'] = timeout_val  # Keep as string if not int
+            elif line.startswith('- workspace_path:'):
+                request['workspace_path'] = line.split(':', 1)[1].strip()
             elif line.startswith('- justification:'):
                 request['justification'] = line.split(':', 1)[1].strip()
 
-        # Only add if all required fields are present
-        if request['capability'] and request['action'] and request['target'] and request['justification']:
+        # Validate required fields based on capability type
+        if request['capability'] == 'CP-001':
+            # For CP-001, check required fields
+            if request['capability'] and request['action'] and request['target'] and request['justification']:
+                requests.append(request)
+        elif request['capability'] == 'CP-002':
+            # For CP-002, check required fields
+            if (request['capability'] and request['action'] and request['tool'] and
+                request['parameters'] is not None and request['timeout'] is not None and
+                request['workspace_path'] and request['justification']):
+                requests.append(request)
+        elif request['capability']:
+            # For any other capability that at least has the capability field
             requests.append(request)
 
     return requests
@@ -921,112 +962,317 @@ def execute_capability_request(request: dict, task_file_path: Path) -> dict:
     """
     capability_id = request['capability']
     action = request['action']
-    target = request['target']
     justification = request['justification']
 
-    # Validate capability ID
-    if capability_id != "CP-001":
+    if capability_id == "CP-001":
+        # Handle workspace interaction
+        target = request['target']
+
+        # Validate action
+        allowed_actions = ["read", "create", "append"]
+        if action not in allowed_actions:
+            return {
+                "status": "failed",
+                "error": f"Invalid action for CP-001: {action}. Allowed: {allowed_actions}",
+                "result": None
+            }
+
+        # Validate target path to ensure it's within allowed directories
+        target_path = Path(target)
+
+        # If target is a relative path, resolve relative to vault root
+        if not target_path.is_absolute():
+            target_path = VAULT_ROOT / target_path
+
+        # Validate that the target is within allowed workspace directories
+        allowed_dirs = [INBOX_DIR, NEEDS_ACTION_DIR, DONE_DIR, LOGS_DIR, PLANS_DIR, SKILLS_DIR, MEMORY_DIR, CAPABILITIES_DIR]
+
+        # Check if target path is within an allowed directory
+        is_allowed = False
+        for allowed_dir in allowed_dirs:
+            try:
+                target_path.resolve().relative_to(allowed_dir.resolve())
+                is_allowed = True
+                break
+            except ValueError:
+                continue
+
+        if not is_allowed:
+            return {
+                "status": "failed",
+                "error": f"Target path not in allowed directories: {target}",
+                "result": None
+            }
+
+        # Execute the action
+        try:
+            if action == "read":
+                if target_path.exists():
+                    content = target_path.read_text(encoding="utf-8")
+                    return {
+                        "status": "success",
+                        "result": content,
+                        "action_performed": f"Read file: {target_path}"
+                    }
+                else:
+                    return {
+                        "status": "failed",
+                        "error": f"File does not exist: {target_path}",
+                        "result": None
+                    }
+
+            elif action == "create":
+                # Create parent directories if they don't exist
+                target_path.parent.mkdir(parents=True, exist_ok=True)
+
+                # Only create empty file or append a template - don't overwrite if exists
+                if not target_path.exists():
+                    target_path.touch()
+                    return {
+                        "status": "success",
+                        "result": f"Created file: {target_path}",
+                        "action_performed": f"Created file: {target_path}"
+                    }
+                else:
+                    return {
+                        "status": "failed",
+                        "error": f"File already exists and will not be overwritten: {target_path}",
+                        "result": None
+                    }
+
+            elif action == "append":
+                # For append, we need to know what to append - in a real system this would come from the request
+                # For now, we'll just validate that the target exists for append operations
+                if not target_path.exists():
+                    return {
+                        "status": "failed",
+                        "error": f"Cannot append to non-existent file: {target_path}",
+                        "result": None
+                    }
+                else:
+                    # In a real implementation, we would have content to append
+                    # This is just validation that append action is allowed
+                    return {
+                        "status": "success",
+                        "result": f"Append operation validated for: {target_path}",
+                        "action_performed": f"Append validated: {target_path}"
+                    }
+
+        except Exception as e:
+            return {
+                "status": "failed",
+                "error": f"Error executing CP-001 operation: {str(e)}",
+                "result": None
+            }
+
+    elif capability_id == "CP-002":
+        # Handle external tool execution
+        # Validate action for CP-002
+        if action != "execute":
+            return {
+                "status": "failed",
+                "error": f"Invalid action for CP-002: {action}. Only 'execute' allowed.",
+                "result": None
+            }
+
+        return execute_cp002_request(request, task_file_path)
+
+    else:
         return {
             "status": "failed",
             "error": f"Unknown capability: {capability_id}",
             "result": None
         }
 
-    # Validate action
-    allowed_actions = ["read", "create", "append"]
-    if action not in allowed_actions:
+
+def execute_cp002_request(request: dict, task_file_path: Path) -> dict:
+    """
+    Execute CP-002 (External Tool Execution) capability request.
+
+    Args:
+        request: Capability request dictionary for CP-002
+        task_file_path: Path of the task that initiated this request
+
+    Returns:
+        Dictionary with result of the operation
+    """
+    import subprocess
+    import shlex
+    import threading
+    import time
+
+    # Extract and validate all required request parameters
+    tool = request.get('tool')
+    parameters = request.get('parameters')
+    timeout = request.get('timeout')
+    workspace_path = request.get('workspace_path')
+    justification = request.get('justification')
+
+    # Validate that all required CP-002 fields are present
+    if not tool:
         return {
             "status": "failed",
-            "error": f"Invalid action: {action}. Allowed: {allowed_actions}",
+            "error": "Missing required field 'tool' for CP-002 request",
             "result": None
         }
 
-    # Validate target path to ensure it's within allowed directories
-    target_path = Path(target)
+    if parameters is None:
+        return {
+            "status": "failed",
+            "error": "Missing required field 'parameters' for CP-002 request",
+            "result": None
+        }
 
-    # If target is a relative path, resolve relative to vault root
-    if not target_path.is_absolute():
-        target_path = VAULT_ROOT / target_path
+    if timeout is None:
+        return {
+            "status": "failed",
+            "error": "Missing required field 'timeout' for CP-002 request",
+            "result": None
+        }
 
-    # Validate that the target is within allowed workspace directories
-    allowed_dirs = [INBOX_DIR, NEEDS_ACTION_DIR, DONE_DIR, LOGS_DIR, PLANS_DIR, SKILLS_DIR, MEMORY_DIR, CAPABILITIES_DIR]
+    if not workspace_path:
+        return {
+            "status": "failed",
+            "error": "Missing required field 'workspace_path' for CP-002 request",
+            "result": None
+        }
 
-    # Check if target path is within an allowed directory
+    if not justification:
+        return {
+            "status": "failed",
+            "error": "Missing required field 'justification' for CP-002 request",
+            "result": None
+        }
+
+    # Validate timeout is an integer within allowed range
+    if not isinstance(timeout, int) or timeout < 1 or timeout > 300:
+        return {
+            "status": "failed",
+            "error": f"Invalid timeout: {timeout}. Must be integer between 1-300 seconds.",
+            "result": None
+        }
+
+    # Validate workspace path is within allowed boundaries
+    workspace_path_obj = Path(workspace_path)
+    try:
+        resolved_path = workspace_path_obj.resolve()
+        vault_root_resolved = VAULT_ROOT.resolve()
+        resolved_path.relative_to(vault_root_resolved)
+    except ValueError:
+        return {
+            "status": "failed",
+            "error": f"Workspace path not within allowed workspace: {workspace_path}",
+            "result": None
+        }
+
+    # Validate tool against allowed registry (simplified version)
+    allowed_tools = {
+        'python': r'^python(\d+)?(\.\d+)?$',
+        'node': r'^node$',
+        'npm': r'^npm$',
+        'yarn': r'^yarn$',
+        'git': r'^git$',
+        'pytest': r'^pytest$',
+        'black': r'^black$',
+        'flake8': r'^flake8$',
+        'eslint': r'^eslint$',
+        'prettier': r'^prettier$',
+        'bash': r'^bash$',
+        'sh': r'^sh$',
+        'ls': r'^ls$',
+        'cat': r'^cat$',
+        'echo': r'^echo$'
+    }
+
+    import re
     is_allowed = False
-    for allowed_dir in allowed_dirs:
-        try:
-            target_path.resolve().relative_to(allowed_dir.resolve())
+    for allowed_tool, pattern in allowed_tools.items():
+        if re.fullmatch(pattern, tool) or tool == allowed_tool:
             is_allowed = True
             break
-        except ValueError:
-            continue
 
     if not is_allowed:
         return {
             "status": "failed",
-            "error": f"Target path not in allowed directories: {target}",
+            "error": f"Tool not in approved registry: {tool}",
             "result": None
         }
 
-    # Execute the action
+    # Validate parameters to prevent dangerous operations
+    dangerous_params = ['|', '&&', '||', ';', '&', '>', '>>', '<', '$(', '`', 'rm -rf', 'sudo', '../']
+    params_str = str(parameters)
+    for dangerous in dangerous_params:
+        if dangerous in params_str:
+            return {
+                "status": "failed",
+                "error": f"Potentially dangerous parameter detected: {dangerous}",
+                "result": None
+            }
+
+    # Build the command
+    full_command = f"{tool} {parameters}".strip()
+
+    # Execute the command with timeout
     try:
-        if action == "read":
-            if target_path.exists():
-                content = target_path.read_text(encoding="utf-8")
-                return {
-                    "status": "success",
-                    "result": content,
-                    "action_performed": f"Read file: {target_path}"
-                }
-            else:
-                return {
-                    "status": "failed",
-                    "error": f"File does not exist: {target_path}",
-                    "result": None
-                }
+        # Change to the specified workspace directory
+        original_cwd = os.getcwd()
+        os.chdir(workspace_path)
 
-        elif action == "create":
-            # Create parent directories if they don't exist
-            target_path.parent.mkdir(parents=True, exist_ok=True)
+        # Split command into arguments safely
+        cmd_parts = [tool] + shlex.split(str(parameters))
 
-            # Only create empty file or append a template - don't overwrite if exists
-            if not target_path.exists():
-                target_path.touch()
-                return {
-                    "status": "success",
-                    "result": f"Created file: {target_path}",
-                    "action_performed": f"Created file: {target_path}"
-                }
-            else:
-                return {
-                    "status": "failed",
-                    "error": f"File already exists and will not be overwritten: {target_path}",
-                    "result": None
-                }
+        start_time = time.time()
+        result = subprocess.run(
+            cmd_parts,
+            capture_output=True,
+            text=True,
+            timeout=timeout
+        )
+        execution_time = time.time() - start_time
 
-        elif action == "append":
-            # For append, we need to know what to append - in a real system this would come from the request
-            # For now, we'll just validate that the target exists for append operations
-            if not target_path.exists():
-                return {
-                    "status": "failed",
-                    "error": f"Cannot append to non-existent file: {target_path}",
-                    "result": None
-                }
-            else:
-                # In a real implementation, we would have content to append
-                # This is just validation that append action is allowed
-                return {
-                    "status": "success",
-                    "result": f"Append operation validated for: {target_path}",
-                    "action_performed": f"Append validated: {target_path}"
-                }
+        # Restore original working directory
+        os.chdir(original_cwd)
 
-    except Exception as e:
+        return {
+            "status": "success",
+            "result": {
+                "exit_code": result.returncode,
+                "stdout": result.stdout,
+                "stderr": result.stderr,
+                "duration": execution_time,
+                "command": full_command,
+                "artifacts": []  # Could be extended to capture generated files
+            },
+            "action_performed": f"Executed tool: {full_command} in {workspace_path}"
+        }
+
+    except subprocess.TimeoutExpired:
+        os.chdir(original_cwd)  # Make sure to restore directory even on timeout
         return {
             "status": "failed",
-            "error": f"Error executing operation: {str(e)}",
-            "result": None
+            "error": f"Command timed out after {timeout} seconds: {full_command}",
+            "result": {
+                "exit_code": -1,
+                "stdout": "",
+                "stderr": "Command timed out",
+                "duration": timeout,
+                "command": full_command,
+                "artifacts": []
+            }
+        }
+    except Exception as e:
+        os.chdir(original_cwd)  # Make sure to restore directory on error
+        return {
+            "status": "failed",
+            "error": f"Error executing command: {str(e)}",
+            "result": {
+                "exit_code": -1,
+                "stdout": "",
+                "stderr": str(e),
+                "duration": time.time() - start_time if 'start_time' in locals() else 0,
+                "command": full_command,
+                "artifacts": []
+            }
         }
 
 
@@ -1069,12 +1315,39 @@ def process_capability_requests_in_response(response_text: str, task_file_path: 
         capability_summary += f"\n### Request {i+1}\n"
         capability_summary += f"- **Capability**: {req['capability']}\n"
         capability_summary += f"- **Action**: {req['action']}\n"
-        capability_summary += f"- **Target**: {req['target']}\n"
+
+        # Different fields for different capability types
+        if req['capability'] == 'CP-001':
+            capability_summary += f"- **Target**: {req['target']}\n"
+        elif req['capability'] == 'CP-002':
+            capability_summary += f"- **Tool**: {req['tool']}\n"
+            capability_summary += f"- **Parameters**: {req['parameters']}\n"
+            capability_summary += f"- **Timeout**: {req['timeout']}s\n"
+            capability_summary += f"- **Workspace**: {req['workspace_path']}\n"
+
         capability_summary += f"- **Justification**: {req['justification']}\n"
         capability_summary += f"- **Status**: {res['status']}\n"
 
         if res['status'] == 'success':
-            capability_summary += f"- **Result**: {res.get('action_performed', res.get('result', 'Operation completed'))}\n"
+            if isinstance(res.get('result'), dict):
+                if 'command' in res['result']:
+                    # This is a CP-002 result with detailed output
+                    result_data = res['result']
+                    capability_summary += f"- **Exit Code**: {result_data.get('exit_code', 'N/A')}\n"
+                    capability_summary += f"- **Duration**: {result_data.get('duration', 'N/A'):.2f}s\n"
+                    capability_summary += f"- **Command**: {result_data.get('command', 'N/A')}\n"
+                    if result_data.get('artifacts'):
+                        capability_summary += f"- **Artifacts**: {result_data.get('artifacts')}\n"
+                    if result_data.get('stdout'):
+                        capability_summary += f"- **Stdout**: {result_data['stdout'][:200]}{'...' if len(result_data['stdout']) > 200 else ''}\n"
+                    if result_data.get('stderr'):
+                        capability_summary += f"- **Stderr**: {result_data['stderr'][:200]}{'...' if len(result_data['stderr']) > 200 else ''}\n"
+                else:
+                    # This is a CP-001 or other type of result
+                    capability_summary += f"- **Result**: {res.get('action_performed', res.get('result', 'Operation completed'))}\n"
+            else:
+                # This is a basic result
+                capability_summary += f"- **Result**: {res.get('action_performed', res.get('result', 'Operation completed'))}\n"
         else:
             capability_summary += f"- **Error**: {res.get('error', 'Unknown error')}\n"
 
@@ -1151,7 +1424,7 @@ RESULT_REMAINING: <None if done, or description of remaining work>
     return "".join(prompt_parts)
 
 
-def invoke_claude(prompt: str, task_name: str) -> dict:
+def invoke_llm(prompt: str, task_name: str) -> dict:
     """
     Invoke Claude to process a task.
 
@@ -1161,51 +1434,38 @@ def invoke_claude(prompt: str, task_name: str) -> dict:
 
     Returns a dict with keys: status, summary, output, decisions, errors
     """
-    result = _try_anthropic_sdk(prompt, task_name)
+    result = invoke_llm(prompt, task_name)
     if result is not None:
         return result
 
-    # Fallback: local simulation for development / offline operation
-    return _simulate_local(prompt, task_name)
+    # # Fallback: local simulation for development / offline operation
+    # return _simulate_local(prompt, task_name)
 
 
-def _try_anthropic_sdk(prompt: str, task_name: str) -> Optional[dict]:
-    """Attempt to invoke Claude via the Anthropic Python SDK."""
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
-    if not api_key:
-        logger.info("No ANTHROPIC_API_KEY found — using local simulation mode")
-        return None
-
-    try:
-        import anthropic
-    except ImportError:
-        logger.info("anthropic package not installed — using local simulation mode")
-        return None
+def invoke_llm(prompt, task_name):
+    """
+    Universal LLM entrypoint.
+    Supports Gemini / OpenAI / Qwen etc.
+    """
 
     try:
-        client = anthropic.Anthropic(api_key=api_key)
-        response = client.messages.create(
-            model="claude-sonnet-4-5-20250929",
-            max_tokens=4096,
-            messages=[{"role": "user", "content": prompt}],
-        )
+        response_text = call_llm(prompt)
 
-        response_text = response.content[0].text
-        logger.info(f"Claude API response received for: {task_name}")
-        return _parse_claude_response(response_text)
-
-    except Exception as api_err:
-        logger.error(f"Claude API call failed: {api_err}")
         return {
-            "status": "failed",
-            "summary": f"API call failed: {type(api_err).__name__}",
-            "output": "",
-            "decisions": "Attempted Anthropic SDK invocation",
-            "errors": str(api_err),
+            "status": "success",
+            "output": response_text,
+            "task": task_name
+        }
+
+    except Exception as e:
+        return {
+            "status": "error",
+            "output": str(e),
+            "task": task_name
         }
 
 
-def _simulate_local(prompt: str, task_name: str) -> dict:
+# def _simulate_local(prompt: str, task_name: str) -> dict:
     """
     Local simulation mode — processes the task without an API call.
     Extracts task intent and produces a structured completion response.
@@ -1452,7 +1712,7 @@ def process_task(file_path: Path, metadata: dict, content: str) -> dict:
         memory_influence_note=memory_influence_note,
     )
 
-    result = invoke_claude(prompt, task_name)
+    result = invoke_llm(prompt, task_name)
 
     # Process any capability requests that were included in Claude's response
     # This handles Gold Tier Phase 2: Capability Invocation Enforcement

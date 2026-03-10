@@ -17,6 +17,7 @@
 | ID | Name | Status | Purpose | Tier | Dependencies |
 |----|------|--------|---------|------|--------------|
 | CP-001 | Workspace Interaction | Active | Controlled file operations within workspace | 0 | None |
+| CP-002 | External Tool Execution | Active | Controlled execution of approved command-line tools | 1 | None |
 | [Next] | [Name] | Draft | [Purpose] | [0-3] | [Dependencies] |
 
 ---

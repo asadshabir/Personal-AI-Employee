@@ -1,0 +1,57 @@
+{
+  "system": {
+    "name": "Gold Tier PHR System",
+    "version": "1.0.0",
+    "tier": "Gold",
+    "description": "Multi-Agent Personal Health Record System with HIPAA compliance"
+  },
+  "agents": {
+    "phr_data_ingestion_agent": {
+      "enabled": true,
+      "agent_id": "PHR-AGENT-001",
+      "skill": "PHR-010",
+      "max_concurrent_tasks": 5
+    },
+    "phr_privacy_agent": {
+      "enabled": true,
+      "agent_id": "PHR-AGENT-002",
+      "skill": "PHR-011",
+      "max_concurrent_tasks": 3
+    },
+    "phr_clinical_agent": {
+      "enabled": true,
+      "agent_id": "PHR-AGENT-003",
+      "skill": "PHR-012",
+      "max_concurrent_tasks": 3
+    }
+  },
+  "compliance": {
+    "hipaa_required": true,
+    "phi_detection_enabled": true,
+    "audit_logging_required": true,
+    "consent_verification_required": true
+  },
+  "security": {
+    "encryption_enabled": true,
+    "encryption_standard": "AES-256",
+    "access_logging_enabled": true,
+    "session_timeout_minutes": 30
+  },
+  "processing": {
+    "max_file_size_mb": 10,
+    "supported_formats": [".md", ".txt", ".json", ".csv", ".pdf", ".xml", ".fhir"],
+    "processing_timeout_seconds": 300,
+    "retry_attempts": 3
+  },
+  "logging": {
+    "log_level": "INFO",
+    "audit_retention_days": 730,
+    "log_format": "json",
+    "compliance_logging_enabled": true
+  },
+  "integration": {
+    "fhir_server_url": "",
+    "ehr_integration_enabled": false,
+    "api_rate_limit_per_minute": 100
+  }
+}
