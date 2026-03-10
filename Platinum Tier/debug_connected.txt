@@ -1,0 +1,35 @@
+Screenshot: C:\Users\Asad Shabir\Desktop\Hackathone-0\AI_Employee\AI_Employee_Vault\Platinum Tier\debug_connected.png
+aria-label (14):
+  BUTTON | Chats
+  BUTTON | Status
+  BUTTON | Channels
+  BUTTON | Communities
+  BUTTON | Meta AI
+  BUTTON | Media
+  BUTTON | Settings
+  BUTTON | Profile
+  SPAN | WhatsApp
+  BUTTON | New chat
+  BUTTON | Menu
+  INPUT | Search or start a new chat
+  DIV | chat-list-filters
+  DIV | Chat list
+data-testid (0):
+data-tab (12):
+  <HEADER data-tab='2' ce='' aria=''>
+  <BUTTON data-tab='2' ce='' aria='New chat'>
+  <BUTTON data-tab='2' ce='' aria='Menu'>
+  <INPUT data-tab='3' ce='' aria='Search or start a new chat'>
+  <BUTTON data-tab='3' ce='' aria=''>
+  <DIV data-tab='3' ce='' aria=''>
+  <DIV data-tab='4' ce='' aria=''>
+  <A data-tab='4' ce='' aria=''>
+  <BUTTON data-tab='8' ce='' aria=''>
+  <BUTTON data-tab='8' ce='' aria=''>
+  <BUTTON data-tab='8' ce='' aria=''>
+  <BUTTON data-tab='8' ce='' aria=''>
+Chat list found=True children=1
+innerHTML preview: <div class="x10l6tqk xh8yej3 x1g42fcv" role="row" style="z-index: 0; transition: none; height: 76px; transform: translateY(0px);"><div role="gridcell" class="x1n2onr6" tabindex="0"><div tabindex="-1" class="" aria-selected="false"><div class="_ak72 false false false _ak73 _asiw _ap1- _ap1_"><div class="_ak8n"><div class="_ak8h"><div><div class="x1n2onr6 x1c9tyrk xeusxvb x1pahc9y x1ertn4p" style="height: 49px; width: 49px;"><img alt="" draggable="false" class="x1n2onr6 x1lliihq xh8yej3 x5yr21d x6
+  <DIV role='row' testid=''> 'Asad9:32 pmstatus-dblcheckAI!  Asad ka favorite to'
+Elements with 'unread' (1):
+  <BUTTON id='label_item_Unread' id='label_item_Unread'>

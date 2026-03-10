@@ -1,0 +1,148 @@
+{
+  "_comment": "Short, professional Roman Urdu replies — first-person as Asad Shabir. No AI disclosure. Keys are case-insensitive substring matches.",
+
+  "hello":        "Hello! 👋 Abhi thoda busy hun — jald wapas aata hun. 😊",
+  "hi":           "Hi! 😊 Dekha message — thodi der mein baat karte hain! 👍",
+  "hey":          "Hey! 😄 Abhi kaam mein hun — shortly reply karunga! ⏳",
+  "salam":        "Wa alaikum assalam! 🤲 Shukriya! Thodi der mein baat karte hain. 😊",
+  "assalam":      "Wa alaikum assalam wa rahmatullahi wa barakatuh! 🤲✨",
+  "salaam":       "Wa alaikum assalam! 💚 Jald reply karunga. 😊",
+
+  "kia haal":     "Alhamdulillah! 😊 Bilkul theek hun. Tum batao, kya haal hai? 🤝",
+  "kaise ho":     "Alhamdulillah, mast hun! 💪 Tum sunao? 😊",
+  "kaisa hai":    "Alhamdulillah! 🌟 Theek chalaa hun. Koi kaam ho? 😊",
+  "theek":        "Theek hai! ✅ Batao kya baat hai? 😊",
+  "acha":         "Achha! 👍 Thodi der mein baat karte hain. ⏳",
+
+  "kaun ho":      "Asad Shabir hun — AI Engineer, GIAIC. 😊 Kya kaam hai? 💼",
+  "who are you":  "Asad Shabir — AI Engineer & Python Developer. 🚀 Koi kaam? 😊",
+  "introduce":    "Asad Shabir hun — AI Engineer, GIAIC student. 🎓\nAI Agents, Python, Automation mera kaam hai. 💻\nPortfolio: http://asadshabir.netlify.app/ 🔗",
+  "asad":         "Jee, main hun! 😊 Batao kya baat hai? 👂",
+  "bhai":         "Jee bhai! 😄 Batao, kya kaam hai? 🤝",
+  "yaar":         "Haan yaar! 😊 Bol kya chal raha hai? 💬",
+
+  "kya karte":    "AI Engineering karta hun — agents, automation, Python. 🚀\nPortfolio: http://asadshabir.netlify.app/ 💼",
+  "kaam":         "Abhi ek project pe hun. 💻 Koi kaam ho mujhse? Batao! 😊",
+  "job":          "Abhi AI projects pe kaam kar raha hun. 🚀 Koi opportunity hai? Details bhejo! 📩",
+  "work":         "AI, Python, Automation — ye mera kaam hai. 💻 Kuch chahiye? Batao! 😊",
+  "project":      "Haan, project bata dena! 🔥 Details bhejo, baat karte hain. 📩",
+
+  "ai":           "AI mera passion hai! 🤖 Koi AI related kaam ho? Batao! 💬",
+  "coding":       "Coding mera daily routine hai. 💻 Kuch chahiye? 😊",
+  "programming":  "Programming mein help chahiye? 💻 Batao kya masla hai! 😊",
+  "python":       "Python main use karta hun daily. 🐍 Kya chahiye? 😊",
+  "developer":    "Haan — AI Engineer & Developer hun. 💻 Portfolio: http://asadshabir.netlify.app/ 🔗",
+  "engineer":     "AI Engineer hun — intelligent systems banana mera kaam. 🤖💪",
+  "website":      "Portfolio yahan hai: http://asadshabir.netlify.app/ 🌐✨",
+  "portfolio":    "Yahan dekho: http://asadshabir.netlify.app/ 👀🔥",
+  "github":       "GitHub link portfolio mein hai: http://asadshabir.netlify.app/ 💻🔗",
+
+  "price":        "Project details bhejo — phir baat karte hain pricing ki. 💼😊",
+  "cost":         "Pehle project suno, phir costing dekhte hain. 🤝 Batao kya chahiye! 😊",
+  "rate":         "Rate project ke hisaab se hota hai. 📊 Details bhejo! 📩",
+  "charges":      "Charges project pe depend karte hain. 💼 Kya kaam hai? Batao! 😊",
+  "hire":         "Haan, hire karna chahte ho? 🎯 AI, Python, Automation — sab kar sakta hun. Details bhejo! 📩",
+  "freelance":    "Freelance available hun! 💼 Project details bhejo — baat karte hain. 😊🔥",
+
+  "available":    "Abhi thoda busy hun. ⏳ Kya kaam hai? Batao, time nikalunga! 😊",
+  "free ho":      "Kuch ghanton mein free hota hun. ⏳ Kya chahiye? 😊",
+  "milna":        "Zaroor milte hain! 🤝 Time batao — schedule kar lete hain. 📅",
+  "call":         "Abhi call nahi ho sakti. 📞 Message mein bata dena — jald reply karunga! 💬",
+  "call me":      "Thodi der mein call karta hun. 📞 Ya time batao — set kar lete hain! 📅",
+  "busy":         "Haan thoda busy hun abhi. 💻 Jald reply karunga! ⏳",
+
+  "urgent":       "⚡ Urgent hai? Message mein detail bhejo — jald dekh raha hun! 🚨",
+  "emergency":    "🆘 Emergency hai? Poora detail bhejo — abhi dekh raha hun! ⚡",
+  "help":         "Kya madad chahiye? 😊 Batao — dekh kar reply karunga! 💬",
+  "problem":      "Kya masla hai? 🤔 Batao poora — zaroor hal nikalunga! 💡",
+
+  "meeting":      "Meeting ke liye time aur date bhejo. 📅 Confirm karta hun! ✅",
+  "interview":    "Interview ke liye ready hun! 🎯 Details bhejo — baat karte hain. 📩",
+  "internship":   "Internship ki baat? 🎓 Details bhejo — dekh ke batata hun! 📩",
+  "collab":       "Collaboration ke liye open hun! 🤝 Project idea bhejo! 🔥",
+  "collaborate":  "Zaroor! 🤝 Project batao — milke kuch acha banate hain. 🔥",
+
+  "thanks":       "Shukriya! 🙏 Koi aur kaam ho toh zaroor bolo. 😊",
+  "thank you":    "Koi baat nahi! 😊 Koi aur kaam? Always here! 🤝",
+  "shukriya":     "Allah khush rakhe! 🤲 Koi bhi kaam ho — bata dena. 😊",
+  "jazakallah":   "Wa antum fa jazakallahu khayran! 🤲💚 Koi kaam? Batao! 😊",
+
+  "ok":           "OK! ✅ 😊",
+  "okay":         "Theek hai! 👍 Koi aur baat? 😊",
+  "hmm":          "Haan? 🤔 Puri baat batao! 💬",
+  "haan":         "Jee! 😊 Kya baat hai? 💬",
+  "nahi":         "Theek hai. 👍 Koi masla ho toh batao! 😊",
+  "kal":          "Kal ke liye schedule karein? 📅 Waqt batao! ⏳",
+  "aaj":          "Aaj? Schedule check karta hun. 📅 Thodi der mein batata hun! ⏳",
+
+  "khana":        "Haha! 😄 Abhi kaam pe hun — baad mein baat karte hain! 😊",
+  "chai":         "Chai zaroor peete hain milke! ☕😄 Kab milna hai? 😊",
+  "coffee":       "Coffee? ☕ Sure! Milne ka plan bana lo! 😊",
+  "baithna":      "Zaroor! 🤝 Time set karo — milte hain. 📅",
+
+  "shayari":      "Shayari? 😄 Ye mera kaam nahi — code likhna mera kaam hai! 😂💻 Koi tech kaam ho toh batao! 🔥",
+  "poetry":       "Poetry chhodho — AI aur code meri poetry hai! 😄💻 Koi project? Batao! 🚀",
+  "poem":         "Poem nahi, code likhta hun! 😂 Koi tech kaam? 💻😊",
+
+  "funny":        "Haha! 😂 Maza aaya. Aur batao! 💬",
+  "joke":         "Hahaha! 😂 Best joke coding mein hota hai — jab code first try mein kaam kare! 😄 Koi baat? 💬",
+  "mazak":        "Mazak achha hai! 😄 Aur batao! 💬",
+
+  "mujhe":        "Haan, suna. 👂 Poora batao — dekh leta hun! 💬",
+  "tumse":        "Haan, batao kya baat hai? 🤝 😊",
+  "tumhara":      "Poochho! 😊 Batao kya jaanna chahte ho? 💬",
+
+  "good morning": "Good morning! ☀️ Acha din aaye! 😊",
+  "good night":   "Good night! 🌙 Kal baat karte hain! 😊",
+  "subah":        "Subah bakhair! ☀️ Acha din aaye! 😊",
+  "raat":         "Raat ko message kiya? 🌙 Kal morning mein reply karunga! 😊",
+
+  "kahan":        "Ghar pe hun — kaam mein hun. 😊 Kuch kaam hai? 💬",
+  "ghar":         "Haan ghar pe hun. 🏠 Kya kaam hai? 😊",
+  "kab":          "Thodi der mein batata hun. ⏳ 😊",
+  "kyun":         "Acha sawaal hai! 😄 Khud milke explain karta hun — thodi der mein! 💬",
+  "kya":          "Haan? Puri baat batao! 😊 💬",
+
+  "love":         "Haha! 😄 Aur batao! 💬",
+  "dost":         "Dost! 🤝 Kya chal raha hai? Batao! 😊",
+  "pyar":         "Haha! 😄 Koi serious baat? 💬",
+  "miss":         "Haha! 😄 Jald milte hain! 🤝",
+
+  "instagram":    "Instagram pe hun — portfolio mein link hai: http://asadshabir.netlify.app/ 📸",
+  "linkedin":     "LinkedIn pe professionally active hun. 💼 Link: http://asadshabir.netlify.app/ 🔗",
+  "youtube":      "YouTube pe abhi nahi hun. 😊 Tech content future mein! 🔜",
+  "twitter":      "Twitter/X pe kum active hun. 😊 Portfolio: http://asadshabir.netlify.app/ 🔗",
+
+  "giaic":        "Haan — GIAIC student hun! 🎓🇵🇰 Governor's Initiative for AI & Computing. 💪",
+  "governor":     "GIAIC se hun — Pakistan AI revolution ka hissa! 🇵🇰🤖💪",
+  "pakistan":     "Pakistan Zindabad! 🇵🇰❤️ Proud Pakistani AI Engineer! 💪",
+  "karachi":      "Karachi se hun! 🌆 Local talent, global work! 💪😊",
+
+  "best":         "Shukriya! 😊 Kaam se judge karo — portfolio dekho: http://asadshabir.netlify.app/ 👀",
+  "amazing":      "Shukriya! 🙏 Koi kaam ho toh batao! 😊",
+  "great":        "Shukriya! ✅ Portfolio: http://asadshabir.netlify.app/ 🔥",
+  "wah":          "Shukriya! 😊 Aur batao! 💬",
+  "masha allah":  "Masha Allah! 🌟🤲 Allah ka shukar! 💚",
+  "insha allah":  "Insha Allah! 🤲✨ Zaroor hoga! 💚",
+
+  "bura":         "Koi baat nahi! 😊 Kya masla hai? Batao! 💪",
+  "mushkil":      "Kya mushkil hai? 🤔 Batao — zaroor hal nikalega! 💡",
+  "tension":      "Tension mat lo! 😌 Kya masla hai? Bata dena! 🤝",
+  "pareshan":     "Pareshan ho? 😟 Kya baat hai? Batao — dekh ke reply karunga! 💬",
+
+  "naukri":       "Koi role hai mere liye? 💼 Details bhejo! 📩 AI, Python, Automation mein expert hun! 🎯",
+  "salary":       "Project/role ke hisaab se baat karte hain. 💼 Details bhejo! 📩",
+
+  "eid":          "Eid Mubarak! 🎊🌙🤲 Allah tamam khushiyaan de! ❤️",
+  "ramzan":       "Ramzan Mubarak! 🌙✨ Allah barkat de! 🤲",
+  "birthday":     "Happy Birthday! 🎂🎉 Allah lambi aur khushiyon bhari zindagi de! 🤲❤️",
+  "new year":     "Happy New Year! 🎆🎉 Khushiyon bhari zindagi! 🤲",
+
+  "waqt":         "Thodi der mein baat karte hain. ⏳ 😊",
+  "der":          "Maafi — thoda busy tha. 🙏 Batao kya baat hai? 😊",
+  "wait":         "Thodi der ruko — abhi aata hun! ⏳ 😊",
+
+  "lol":          "Haha! 😂 Aur batao! 💬",
+  "haha":         "Haha! 😄 Maza aaya! Koi baat? 💬",
+  "xd":           "XD! 😂 Koi baat? Batao! 💬"
+}

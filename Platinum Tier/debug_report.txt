@@ -1,0 +1,32 @@
+Navigating to WhatsApp Web...
+Waiting up to 40s for WhatsApp to load...
+Chat list not found in 40s
+Waiting 8s more for chats to lazy-load...
+Screenshot: C:\Users\Asad Shabir\Desktop\Hackathone-0\AI_Employee\AI_Employee_Vault\Platinum Tier\debug_screenshot.png
+
+============================================================
+IFRAMES ON THE PAGE
+============================================================
+Total frames (including main): 1
+  frame[0] url='https://web.whatsapp.com/'
+
+============================================================
+FRAME: main frame
+============================================================
+  [MISS] Chat list NOT found in this frame
+
+  data-testid values (0 unique):
+
+  aria-label values (0 unique):
+
+  data-tab elements (0):
+
+  Elements with 'unread' in attributes (0):
+
+  Children inside [aria-label='Chat list'] (0):
+
+============================================================
+PAGE INFO
+============================================================
+  Title : WhatsApp
+  URL   : https://web.whatsapp.com/

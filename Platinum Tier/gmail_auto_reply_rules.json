@@ -1,0 +1,83 @@
+{
+  "_comment": "Gmail auto-reply rules — first-person as Asad Shabir. Keys are case-insensitive substring matches against email subject + body combined.",
+
+  "hello":          "Hello! 👋\n\nThanks for reaching out. I'm a bit tied up right now — will get back to you shortly.\n\nBest,\nAsad Shabir",
+  "hi ":            "Hi! 😊\n\nGot your email. Will reply properly very soon.\n\nBest,\nAsad Shabir",
+  "hey":            "Hey! 😄\n\nThanks for writing in. I'll respond shortly.\n\nBest,\nAsad Shabir",
+
+  "collaboration":  "Hi! 🤝\n\nThanks for the collaboration interest. Please share more details about the project/idea and I'll review and respond.\n\nBest,\nAsad Shabir",
+  "collab":         "Hi! 🤝\n\nThanks for reaching out about collaboration. Share your project details and I'll get back to you soon.\n\nBest,\nAsad Shabir",
+  "partner":        "Hi! 🤝\n\nThanks for the partnership interest. Send over the details and I'll review.\n\nBest,\nAsad Shabir",
+
+  "project":        "Hi! 💼\n\nThanks for reaching out about the project. Please share the full requirements/brief and I'll respond with a proper assessment.\n\nBest,\nAsad Shabir",
+  "proposal":       "Hi! 📄\n\nReceived your proposal — will review it carefully and get back to you shortly.\n\nBest,\nAsad Shabir",
+  "requirement":    "Hi! 📋\n\nThanks for sharing the requirements. I'll review and respond with my thoughts soon.\n\nBest,\nAsad Shabir",
+
+  "hire":           "Hi! 🎯\n\nThanks for considering me. I'm an AI Engineer specializing in Python, AI Agents, and Automation.\n\nPlease share the role details/JD and I'll review.\n\nPortfolio: http://asadshabir.netlify.app/\n\nBest,\nAsad Shabir",
+  "job":            "Hi! 💼\n\nThanks for reaching out. Please share the role details and I'll get back to you soon.\n\nPortfolio: http://asadshabir.netlify.app/\n\nBest,\nAsad Shabir",
+  "opportunity":    "Hi! 🚀\n\nThanks for the opportunity. Please share more details and I'll review.\n\nBest,\nAsad Shabir",
+  "interview":      "Hi! 🎯\n\nThanks for the interview invitation. I'll review and confirm the schedule shortly.\n\nBest,\nAsad Shabir",
+  "internship":     "Hi! 🎓\n\nThanks for reaching out about the internship. Please share the details and I'll respond.\n\nBest,\nAsad Shabir",
+  "freelance":      "Hi! 💻\n\nThanks for reaching out. I'm available for freelance work in AI, Python, and Automation.\n\nShare your project details and I'll send a quote.\n\nBest,\nAsad Shabir",
+
+  "price":          "Hi! 💰\n\nPricing depends on the scope of work. Please share your project requirements and I'll send a proper quote.\n\nBest,\nAsad Shabir",
+  "cost":           "Hi! 💰\n\nPlease share your project details and I'll provide a cost estimate.\n\nBest,\nAsad Shabir",
+  "quote":          "Hi! 📊\n\nPlease share your full project requirements and I'll send a detailed quote shortly.\n\nBest,\nAsad Shabir",
+  "budget":         "Hi! 💼\n\nHappy to work within a budget. Share your requirements + budget range and I'll let you know if we can make it work.\n\nBest,\nAsad Shabir",
+  "rate":           "Hi! 📊\n\nMy rates depend on the project scope. Share your requirements and I'll provide a proper quote.\n\nBest,\nAsad Shabir",
+
+  "portfolio":      "Hi! 👀\n\nYou can view my portfolio here: http://asadshabir.netlify.app/ 🔗\n\nFeel free to reach out with any questions!\n\nBest,\nAsad Shabir",
+  "github":         "Hi! 💻\n\nMy GitHub is linked on my portfolio: http://asadshabir.netlify.app/ 🔗\n\nBest,\nAsad Shabir",
+  "linkedin":       "Hi! 💼\n\nMy LinkedIn is linked on my portfolio: http://asadshabir.netlify.app/ 🔗\n\nBest,\nAsad Shabir",
+  "website":        "Hi! 🌐\n\nWebsite/Portfolio: http://asadshabir.netlify.app/ ✨\n\nBest,\nAsad Shabir",
+  "resume":         "Hi! 📄\n\nI'll send my CV/resume shortly. You can also check my portfolio in the meantime: http://asadshabir.netlify.app/\n\nBest,\nAsad Shabir",
+  "cv":             "Hi! 📄\n\nI'll send my CV shortly. Portfolio: http://asadshabir.netlify.app/\n\nBest,\nAsad Shabir",
+
+  "meeting":        "Hi! 📅\n\nHappy to schedule a meeting. Please share your preferred time slots and I'll confirm.\n\nBest,\nAsad Shabir",
+  "schedule":       "Hi! 🗓️\n\nPlease share your preferred time/date and I'll confirm the schedule.\n\nBest,\nAsad Shabir",
+  "call":           "Hi! 📞\n\nHappy to jump on a call. Share your preferred time and timezone and I'll confirm.\n\nBest,\nAsad Shabir",
+  "zoom":           "Hi! 💻\n\nSure for a Zoom call. Share your preferred time/date and I'll send the invite.\n\nBest,\nAsad Shabir",
+  "available":      "Hi! ⏰\n\nI'll check my availability and get back to you shortly.\n\nBest,\nAsad Shabir",
+
+  "ai":             "Hi! 🤖\n\nThanks for reaching out about AI. I specialize in AI Agents, Python automation, and LLM integrations.\n\nShare your requirements and I'll respond properly.\n\nBest,\nAsad Shabir",
+  "python":         "Hi! 🐍\n\nPython is my primary stack. Share your project details and I'll assess.\n\nBest,\nAsad Shabir",
+  "automation":     "Hi! ⚡\n\nAutomation is one of my core skills. Share what you need automated and I'll respond with an approach.\n\nBest,\nAsad Shabir",
+  "machine learning": "Hi! 🤖\n\nThanks for reaching out about ML. Share your use case and I'll respond with my thoughts.\n\nBest,\nAsad Shabir",
+  "chatbot":        "Hi! 💬\n\nI build AI chatbots and agents. Share your requirements and I'll get back to you.\n\nBest,\nAsad Shabir",
+  "agent":          "Hi! 🤖\n\nAI Agents are my specialty. Share your use case and I'll respond with an approach.\n\nBest,\nAsad Shabir",
+  "llm":            "Hi! 🧠\n\nThanks for reaching out. LLM integrations are part of my core work. Share the details.\n\nBest,\nAsad Shabir",
+  "openai":         "Hi! 🤖\n\nI work with OpenAI and other LLM APIs. Share your project details.\n\nBest,\nAsad Shabir",
+  "claude":         "Hi! 🤖\n\nI work with Claude/Anthropic APIs. Share your requirements.\n\nBest,\nAsad Shabir",
+
+  "urgent":         "Hi! ⚡\n\nGot your urgent message — I'll prioritize and respond as soon as possible.\n\nBest,\nAsad Shabir",
+  "asap":           "Hi! ⚡\n\nNoted the urgency — will get back to you as soon as possible.\n\nBest,\nAsad Shabir",
+  "important":      "Hi! 📌\n\nReceived your email — I'll review and respond shortly.\n\nBest,\nAsad Shabir",
+  "help":           "Hi! 😊\n\nHappy to help. Share the details of what you need and I'll get back to you.\n\nBest,\nAsad Shabir",
+  "issue":          "Hi! 🔧\n\nGot your email about the issue. Share the full details and I'll look into it.\n\nBest,\nAsad Shabir",
+  "problem":        "Hi! 🔧\n\nSorry to hear about the problem. Share the full details and I'll assist.\n\nBest,\nAsad Shabir",
+  "support":        "Hi! 🤝\n\nThanks for reaching out. Share your issue/query and I'll assist.\n\nBest,\nAsad Shabir",
+
+  "giaic":          "Hi! 🎓\n\nYes — I'm a GIAIC student (Governor's Initiative for AI & Computing, Pakistan). 🇵🇰\n\nHow can I help?\n\nBest,\nAsad Shabir",
+  "governor":       "Hi! 🎓\n\nYes, I'm part of GIAIC — Governor's Initiative for AI & Computing. 🇵🇰\n\nBest,\nAsad Shabir",
+
+  "thanks":         "You're welcome! 😊\n\nFeel free to reach out anytime.\n\nBest,\nAsad Shabir",
+  "thank you":      "You're welcome! 🙏\n\nHappy to help anytime.\n\nBest,\nAsad Shabir",
+  "appreciate":     "Thank you! 🙏\n\nFeel free to reach out anytime.\n\nBest,\nAsad Shabir",
+
+  "feedback":       "Hi! 📝\n\nThanks for the feedback — I appreciate it. I'll review and respond shortly.\n\nBest,\nAsad Shabir",
+  "review":         "Hi! 👀\n\nThanks for sharing. I'll review and get back to you soon.\n\nBest,\nAsad Shabir",
+  "suggestion":     "Hi! 💡\n\nThanks for the suggestion. I'll consider it and respond.\n\nBest,\nAsad Shabir",
+
+  "follow up":      "Hi! 📩\n\nThanks for following up — I'll get back to you shortly.\n\nBest,\nAsad Shabir",
+  "following up":   "Hi! 📩\n\nThanks for the follow-up. I'll respond soon.\n\nBest,\nAsad Shabir",
+  "checking in":    "Hi! 😊\n\nThanks for checking in. I'll respond properly shortly.\n\nBest,\nAsad Shabir",
+  "update":         "Hi! 🔄\n\nThanks for reaching out for an update. I'll review and respond shortly.\n\nBest,\nAsad Shabir",
+
+  "invoice":        "Hi! 📄\n\nReceived your invoice — I'll review and process it shortly.\n\nBest,\nAsad Shabir",
+  "payment":        "Hi! 💳\n\nReceived your message about payment — I'll review and get back to you.\n\nBest,\nAsad Shabir",
+  "contract":       "Hi! 📋\n\nReceived the contract — I'll review it carefully and respond shortly.\n\nBest,\nAsad Shabir",
+  "agreement":      "Hi! 📋\n\nReceived the agreement — I'll review and get back to you soon.\n\nBest,\nAsad Shabir",
+
+  "newsletter":     "Hi! 📧\n\nThanks — I'll review.\n\nBest,\nAsad Shabir",
+  "unsubscribe":    "Hi! 📧\n\nNoted — I'll process your unsubscribe request.\n\nBest,\nAsad Shabir"
+}
